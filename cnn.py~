@@ -8,7 +8,7 @@ from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 import os,random, sys
-
+'''
 classifier = Sequential()
 classifier.add(Conv2D(32, (3, 3), input_shape = (64, 64, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
@@ -28,9 +28,10 @@ test_set = test_datagen.flow_from_directory(test, target_size = (64, 64), batch_
 
 classifier.fit_generator(training_set, steps_per_epoch = 752, epochs = 25, 
                          validation_data = test_set, validation_steps = 188)
-
+'''
 path = 'type1_sorted/test/Normal'
 a = random.choice(os.listdir(path))
+print(path+'/'+a)
 test_image = image.load_img(path+'/'+a, target_size = (64, 64))
 test_image = image.img_to_array(test_image)
 test_image = np.expand_dims(test_image, axis = 0)
