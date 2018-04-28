@@ -26,6 +26,7 @@ test = 'type1_sorted/test'
 training_set = train_datagen.flow_from_directory(train, target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
 test_set = test_datagen.flow_from_directory(test, target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
 
+
 classifier.fit_generator(training_set, steps_per_epoch = 752, epochs = 5, 
                          validation_data = test_set, validation_steps = 188)
 
