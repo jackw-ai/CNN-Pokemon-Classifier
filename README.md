@@ -1,2 +1,2 @@
-# AI_proj
+# Pokemon Type Classifier
 :)
