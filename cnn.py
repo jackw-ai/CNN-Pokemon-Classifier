@@ -1,3 +1,6 @@
+# (c) 2018 Tongyu Zhou, Tingda Wang
+# trains CNN and saves classifier to .json and .h5
+
 # Importing the Keras libraries and packages
 from keras.models import Sequential
 from keras.layers import Conv2D
@@ -6,6 +9,7 @@ from keras.layers import Flatten
 from keras.layers import Dense
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
+from keras.models import model_from_json
 import numpy as np
 import os,random, sys
 
@@ -29,6 +33,22 @@ test_set = test_datagen.flow_from_directory(test, target_size = (64, 64), batch_
 classifier.fit_generator(training_set, steps_per_epoch = 752, epochs = 5, 
                          validation_data = test_set, validation_steps = 188)
 
+# serialize model to JSON
+classifier_json = classifier.to_json()
+
+if not os.path.exists(os.path.dirname("model/")):
+    os.makedirs(os.path.dirname("model/"))
+
+with open("model/classifier.json", "w") as json_file:
+    json_file.write(classifier_json)
+
+# serialize weights to HDF5
+classifier.save_weights("model/classifier.h5")
+print("Saved model to disk")
+
+# junk, moved to run.py
+
+'''
 path = 'type1_sorted/test/Normal'
 a = random.choice(os.listdir(path))
 test_image = image.load_img(path+'/'+a, target_size = (64, 64))
@@ -37,3 +57,4 @@ test_image = np.expand_dims(test_image, axis = 0)
 result = classifier.predict(test_image)
 training_set.class_indices
 print(result[0][0])
+'''
