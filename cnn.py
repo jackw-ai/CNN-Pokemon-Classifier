@@ -45,16 +45,3 @@ with open("model/classifier.json", "w") as json_file:
 # serialize weights to HDF5
 classifier.save_weights("model/classifier.h5")
 print("Saved model to disk")
-
-# junk, moved to run.py
-
-'''
-path = 'type1_sorted/test/Normal'
-a = random.choice(os.listdir(path))
-test_image = image.load_img(path+'/'+a, target_size = (64, 64))
-test_image = image.img_to_array(test_image)
-test_image = np.expand_dims(test_image, axis = 0)
-result = classifier.predict(test_image)
-training_set.class_indices
-print(result[0][0])
-'''
