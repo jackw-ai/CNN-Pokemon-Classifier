@@ -62,5 +62,6 @@ predicted_type2 = [type for type, index in test_set2.class_indices.items() if in
 
 pokemon = get_type(imagepath)
 second = "" if pokemon.type2 == 'None' else " and type " + pokemon.type2
+pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
 print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
-print("The predicted type is " + predicted_type + " and " + predicted_type2)
+print("The predicted type is " + predicted_type + second)
