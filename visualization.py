@@ -19,15 +19,20 @@ def plot_pokemon(id = random.randint(1, 700)):
     plt.figure(figsize = (20, 4))
 
     # plot pokemon from all folders
-    for i, folder in enumerate(game_folders):            
-        img = mpimg.imread(os.path.join(path, folder, image))
-        plt.subplot(2, 8, i + 1)
-        plt.imshow(img)
-        plt.title(str(folder))
+    counter = 1
+    for folder in game_folders:            
+        try:
+            img = mpimg.imread(os.path.join(path, folder, image))
+            plt.subplot(2, 8, counter)
+            plt.imshow(img)
+            plt.title(str(folder))
+            counter += 1
+        except FileNotFoundError:
+            pass
 
     # can't forget the icon
     img = mpimg.imread(os.path.join("data/icons/", image))
-    plt.subplot(2,8,15)
+    plt.subplot(2,8,counter)
     plt.imshow(img)
     plt.title("icon")
 
@@ -43,16 +48,24 @@ def plot_game(game, pokemons = random.sample(range(1, 152), 10)):
     full_path = os.path.join(path, game) if game is not "icons" else "data/icons"
     batch = len(pokemons)
     plt.figure(figsize = (20, 4))
-    for i, id in enumerate(pokemons):
-        image = "{n}.png".format(n = id)
-        img = mpimg.imread(os.path.join(full_path, image))
-        plt.subplot(1, batch, i + 1)
-        plt.imshow(img)
-        plt.title(get_pokemon(str(id)).name)
+
+    # plot the pokemon from pokemons
+    counter = 1
+    for id in pokemons:
+        try:
+            image = "{n}.png".format(n = id)
+            img = mpimg.imread(os.path.join(full_path, image))
+            plt.subplot(1, batch, counter)
+            plt.imshow(img)
+            plt.title(get_pokemon(str(id)).name)
+            counter += 1
+        except FileNotFoundError:
+            pass
     plt.suptitle("Pokemons from " + str(game))
     plt.show()
 
 if __name__ == "__main__":
-    plot_pokemon(151)
+    plot_pokemon(150)
     plot_game("platinum")
     plot_game("icons")
+    plot_game("conquest")
