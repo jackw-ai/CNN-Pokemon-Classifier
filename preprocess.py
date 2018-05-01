@@ -20,6 +20,7 @@ def types(path):
     file.pop(0)
     for f in file:
         info = f.split(',')
+        info[1] = info[1].split('Mega')[0]
         if info[3] == "":
             info[3] = "None"
         dict[info[0]] = Pokemon(info[1], info[2], info[3])

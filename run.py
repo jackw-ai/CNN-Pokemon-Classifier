@@ -10,22 +10,14 @@ from keras.layers import Dense
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import model_from_json
-import numpy as np
-import os,random, sys, re
-
-from preprocess import types
 from keras.utils import plot_model
 
+import numpy as np
+import os,random, sys, re
 from preprocess import get_pokemon
 
-# for checking accuracy
-type_dict = types('data/Pokemon-2.csv')
-
-def get_type(filepath):
-    ''' returns the Pokemon tuple based on file path '''
-    filename = filepath.split('/')[-1]
-    id = ''.join(re.findall(r'\b\d+\b', filename))
-    return type_dict[id]
+# create image representation of model
+plot_classifier = False
 
 # load json and create model
 json_file = open('model/classifier1.json', 'r')
@@ -69,4 +61,5 @@ pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
 print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
 print("The predicted type is " + predicted_type + second)
 
-plot_model(classifier, to_file='model.png')
+if plot_classifier:    
+    plot_model(classifier, to_file='model.png')
