@@ -41,17 +41,19 @@ def create_cnn(primary = True):
                          validation_data = test_set, validation_steps = 188)
 
     # save the classifier
-    classifier_json = classifier.to_json()
+#    classifier_json = classifier.to_json()
 
     if not os.path.exists(os.path.dirname("model/")):
         os.makedirs(os.path.dirname("model/"))
     filename = "classifier1" if primary else "classifier2"
-    with open("model/" + filename + ".json", "w") as json_file:
-        json_file.write(classifier_json)
+#    with open("model/" + filename + ".json", "w") as json_file:
+#        json_file.write(classifier_json)
+    classifier.save("model/" + filename + ".h5")
 
     # serialize weights to HDF5
-    classifier.save_weights("model/" + filename + ".h5")
+#    classifier.save_weights("model/" + filename + ".h5")
     print("Saved model to disk")
 
-# build classifier for type 2
-create_cnn(False)
+# build classifier for type 1 and 2
+create_cnn(True)
+#create_cnn(False)
