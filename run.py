@@ -14,6 +14,9 @@ import numpy as np
 import os,random, sys, re
 
 from preprocess import types
+from keras.utils import plot_model
+
+from preprocess import get_pokemon
 
 # for checking accuracy
 type_dict = types('data/Pokemon-2.csv')
@@ -23,7 +26,7 @@ def get_type(filepath):
     filename = filepath.split('/')[-1]
     id = ''.join(re.findall(r'\b\d+\b', filename))
     return type_dict[id]
-    
+
 # load json and create model
 json_file = open('model/classifier1.json', 'r')
 loaded_model_json = json_file.read()
@@ -60,8 +63,10 @@ predicted_type = [type for type, index in test_set.class_indices.items() if inde
 test_set2 = test_datagen.flow_from_directory('type2_sorted/test', target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
 predicted_type2 = [type for type, index in test_set2.class_indices.items() if index == result2[0]][0]
 
-pokemon = get_type(imagepath)
+pokemon = get_pokemon(imagepath)
 second = "" if pokemon.type2 == 'None' else " and type " + pokemon.type2
 pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
 print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
 print("The predicted type is " + predicted_type + second)
+
+plot_model(classifier, to_file='model.png')

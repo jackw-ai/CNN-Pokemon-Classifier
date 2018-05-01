@@ -10,7 +10,7 @@ from collections import namedtuple
 # tuple for each line of data
 Pokemon = namedtuple('Pokemon', 'name, type1, type2')
 
-def types (path):
+def types(path):
     ''' 
     Reads the csv file to generate a namedtuple Pokemon for each line 
     returns a dictionary of pokemon no. as key and (name, type1, type2) as value
@@ -25,7 +25,16 @@ def types (path):
         dict[info[0]] = Pokemon(info[1], info[2], info[3])
     return dict
 
-def load (dict, path, primary = True):
+# for checking accuracy 
+type_dict = types('data/Pokemon-2.csv')
+
+def get_pokemon(filepath):
+    ''' returns the Pokemon tuple based on file path '''
+    filename = filepath.split('/')[-1]
+    id = ''.join(re.findall(r'\b\d+\b', filename))
+    return type_dict[id]
+
+def load(dict, path, primary = True):
     ''' 
     loads dataset and divides them by type and test, training
     '''
@@ -52,7 +61,7 @@ def load (dict, path, primary = True):
         sort(key, train, 'train', primary)
         sort(key, test, 'test', primary)
 
-def sort (type, dataset, datatype, primary = True):
+def sort(type, dataset, datatype, primary = True):
     '''
     for each type, divide the pokemon of that type for datatype: test or training
     primary determines whether we sort type1 or type2 of a pokemon
@@ -69,30 +78,31 @@ def sort (type, dataset, datatype, primary = True):
             os.makedirs(os.path.dirname(dst_dir))
         shutil.copy(img, dst_dir)
 
-        
-# divides the sprite images into their respective types
 
-# deletes the directory and reshuffles images each time 
-try:
-    shutil.rmtree('type1_sorted')
-except FileNotFoundError:
-    pass
+if __name__ == "__main__":        
+    # divides the sprite images into their respective types
 
-try:
-    shutil.rmtree('type1_sorted')
-except FileNotFoundError:
-    pass
+    # deletes the directory and reshuffles images each time 
+    try:
+        shutil.rmtree('type1_sorted')
+    except FileNotFoundError:
+        pass
 
-# reads the csv fle
-typing = types('data/Pokemon-2.csv')
+    try:
+        shutil.rmtree('type1_sorted')
+    except FileNotFoundError:
+        pass
 
-# load icons first
-load(typing, 'data/icons')
-load(typing, 'data/icons', primary = False)
+    # reads the csv fle
+    typing = types('data/Pokemon-2.csv')
 
-# load sprites from all games
-game_sprites = [x[0] for x in os.walk('data/main-sprites')]
-for game in game_sprites:
-    if len(str(game).split('/')) <= 3:
-        load(typing, game)
-        load(typing, game, primary = False)
+    # load icons first
+    load(typing, 'data/icons')
+    load(typing, 'data/icons', primary = False)
+
+    # load sprites from all games
+    game_sprites = [x[0] for x in os.walk('data/main-sprites')]
+    for game in game_sprites:
+        if len(str(game).split('/')) <= 3:
+            load(typing, game)
+            load(typing, game, primary = False)
