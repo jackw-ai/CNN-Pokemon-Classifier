@@ -61,5 +61,8 @@ pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
 print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
 print("The predicted type is " + predicted_type + second)
 
+# plots the model
 if plot_classifier:    
-    plot_model(classifier, to_file='model.png')
+    plot_model(classifier, to_file='model/classifier1.png')
+    plot_model(classifier2, to_file='model/classifier2.png')
+    print("Model plots saved to model/")
