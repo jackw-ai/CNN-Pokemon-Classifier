@@ -9,33 +9,16 @@ from keras.layers import Flatten
 from keras.layers import Dense
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
-from keras.models import model_from_json
 from keras.utils import plot_model
 from keras.models import load_model
 
-
 import numpy as np
 import os,random, sys, re
+
 from preprocess import get_pokemon
 
-# create image representation of model
-plot_classifier = False
-
-# load json and create model
-#json_file = open('model/classifier1.json', 'r')
-#loaded_model_json = json_file.read()
-#json_file.close()
-#classifier = model_from_json(loaded_model_json)
-# load weights into new model
-#classifier.load_weights("model/classifier1.h5")
+# loads the models
 classifier = load_model("model/classifier1.h5")
-
-#json_file = open('model/classifier2.json', 'r')
-#loaded_model_json = json_file.read()
-#json_file.close()
-#classifier2 = model_from_json(loaded_model_json)
-# load weights into new model
-#classifier2.load_weights("model/classifier2.h5")
 classifier2 = load_model("model/classifier2.h5")
 print("Loaded classifiers from disk")
 
@@ -65,8 +48,12 @@ pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
 print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
 print("The predicted type is " + predicted_type + second)
 
-# plots the model
-if plot_classifier:    
-    plot_model(classifier, to_file='model/classifier1.png')
-    plot_model(classifier2, to_file='model/classifier2.png')
-    print("Model plots saved to model/")
+print("Primary Type:")
+accuracy = classifier.evaluate_generator(test_set)
+print("Loss: ", accuracy[0])
+print("Accuracy: ", accuracy[1])
+
+print("Secondary:")
+accuracy2 = classifier2.evaluate_generator(test_set2)
+print("Loss: ", accuracy2[0])
+print("Accuracy: ", accuracy2[1])

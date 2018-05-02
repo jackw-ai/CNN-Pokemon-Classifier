@@ -65,8 +65,10 @@ def plot_game(game, pokemons = random.sample(range(1, 152), 10)):
     plt.show()
 
 def plot_loss(history):
+    plt.figure(figsize = (20, 8))
+    
     # loss
-    plt.figure(figsize = (8, 6))
+    plt.subplot(1, 2, 1)
     plt.plot(history.history['loss'], 'r', linewidth = 3.0)
     plt.plot(history.history['val_loss'], 'b', linewidth = 3.0)
     plt.legend(['Training loss', 'Validation Loss'], fontsize = 18)
@@ -75,13 +77,13 @@ def plot_loss(history):
     plt.title('Loss Curves', fontsize = 16)
  
     # accuracy
-    plt.figure(figsize = (8, 6])
+    plt.subplot(1, 2, 2)
     plt.plot(history.history['acc'], 'r', linewidth = 3.0)
     plt.plot(history.history['val_acc'], 'b', linewidth = 3.0)
     plt.legend(['Training Accuracy', 'Validation Accuracy'], fontsize = 18)
     plt.xlabel('Epochs ', fontsize = 16)
     plt.ylabel('Accuracy', fontsize = 16)
-    plt.title('Accuracy Curves',fontsize = 16)
+    plt.title('Accuracy Curves', fontsize = 16)
 
     plt.suptitle('Loss & Accuracy')
     plt.show()
