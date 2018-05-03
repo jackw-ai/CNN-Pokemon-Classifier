@@ -30,9 +30,9 @@ def create_cnn(primary = True):
 
     # add convolutional layers
     ''' 
-    6 Convolutional Layers, maxpool layer follows each 2 Conv2D
-    3 Dropout layers to prevent overfit
-    after flatten, 2 dense layers
+    3 Convolutional Layers, maxpool layer follows 2 Conv2D layers
+    3 Dropout layers to prevent overfitting
+    after flatten, 2 dense layers to return output
     '''
     classifier.add(Conv2D(64, (3, 3),
                           padding = 'same',
@@ -43,7 +43,7 @@ def create_cnn(primary = True):
     classifier.add(Dropout(0.25))
     
     classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
-    #classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    classifier.add(Conv2D(64, (3, 3), activation='relu'))
     classifier.add(MaxPooling2D(pool_size = (2, 2)))
     classifier.add(Dropout(0.25))
 
