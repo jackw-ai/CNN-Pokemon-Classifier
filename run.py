@@ -28,18 +28,18 @@ path = test
 path += '/' + random.choice([x for x in os.listdir(path) if os.path.isdir(os.path.join(path, x))])
 imagepath = path + '/' + random.choice(os.listdir(path))
 
-test_image = image.load_img(imagepath, target_size = (64, 64))
+test_image = image.load_img(imagepath, target_size = (32, 32))
 test_image = image.img_to_array(test_image)
 test_image = np.expand_dims(test_image, axis = 0)
 result1 = classifier.predict_classes(test_image)
 result2 = classifier2.predict_classes(test_image)
 
 test_datagen = ImageDataGenerator(rescale = 1./255)
-test_set = test_datagen.flow_from_directory(test, target_size = (64, 64), batch_size = 32,
+test_set = test_datagen.flow_from_directory(test, target_size = (32, 32), batch_size = 32,
                                             class_mode = 'categorical')
 predicted_type = [type for type, index in test_set.class_indices.items() if index == result1[0]][0]
 
-test_set2 = test_datagen.flow_from_directory('type2_sorted/test', target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
+test_set2 = test_datagen.flow_from_directory('type2_sorted/test', target_size = (32, 32), batch_size = 32, class_mode = 'categorical')
 predicted_type2 = [type for type, index in test_set2.class_indices.items() if index == result2[0]][0]
 
 pokemon = get_pokemon(imagepath)

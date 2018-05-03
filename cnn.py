@@ -7,6 +7,7 @@ from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
+from keras.layers import Dropout
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import plot_model
@@ -17,19 +18,49 @@ import os,random, sys
 from visualization import plot_loss
 
 def create_cnn(primary = True):
-    ''' creates the convolutional neural network '''
-    classifier = Sequential()
-    classifier.add(Conv2D(32, (3, 3), input_shape = (64, 64, 3), activation = 'relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2)))
-    classifier.add(Flatten())
-    #classifier.add(Dense(units = 128, activation = 'relu'))
-    #classifier.add(Dense(units = 1, activation = 'sigmoid'))
-    classifier.add(Dense(128, input_dim=4, activation='relu'))
+    ''' 
+    creates the convolutional neural network classifier 
+    returns the classfier for primary or secondary types
+    '''
 
-    # one more category for None type 2
+    # sequential layers
+    classifier = Sequential()
+
+    # add convolutional layers
+    ''' 
+    6 Convolutional Layers, maxpool layer follows each 2 Conv2D
+    3 Dropout layers to prevent overfit
+    after flatten, 2 dense layers
+    '''
+    classifier.add(Conv2D(32, (3, 3),
+                          padding = 'same',
+                          input_shape = (32, 32, 3),
+                          activation = 'relu'))
+    classifier.add(Conv2D(32, (3, 3), activation='relu'))
+    classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    classifier.add(Dropout(0.25))
+    
+    classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
+    classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    classifier.add(Dropout(0.25))
+
+    classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
+    classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    classifier.add(Dropout(0.25))
+
+    # flatten output and create fully connected layers
+    classifier.add(Flatten())
+    classifier.add(Dense(512, input_dim = 4, activation = 'relu'))
+    classifier.add(Dropout(0.5))
+    
+    # one more category for None in secondary type
     categories = 18 if primary else 19
 
-    classifier.add(Dense(categories, activation='softmax'))
+    classifier.add(Dense(categories, activation = 'softmax'))
+
+    # returns built CNN
     return classifier
 
 def train(primary = True, save = True, plot_classifier = False):
@@ -38,34 +69,61 @@ def train(primary = True, save = True, plot_classifier = False):
     Supports saving the model and plotting the model.
     Returns the classifier as well as history object for plotting.
     '''
-    classifier = create_cnn(primary)
-    
-    classifier.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
+    # get model
+    classifier = create_cnn(primary)
+
+    # batch size
+    BATCH_SIZE = 64
+
+    # number of training epochs
+    EPOCHS = 20
+    
+    # uses adam optimizer and crossentropy loss function
+    classifier.compile(optimizer = 'adam',
+                       loss = 'categorical_crossentropy',
+                       metrics = ['accuracy'])
+
+    # prevent further overfit by randomly transforming the training images
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
-        #rotation_range = 10,
+        rotation_range = 10,
         shear_range = 0.2,
         zoom_range = 0.2,
-        #width_shift_range = 0.1,
-        #height_shift_range = 0.1,
-        horizontal_flip = True)
+        width_shift_range = 0.1,
+        height_shift_range = 0.1,
+        horizontal_flip = True,
+        vertical_flip = True)
     
     test_datagen = ImageDataGenerator(rescale = 1./255)
 
+    # file path depends on the model
     train = 'type1_sorted/train' if primary else 'type2_sorted/train' 
     test = 'type1_sorted/test' if primary else 'type2_sorted/test' 
 
-    training_set = train_datagen.flow_from_directory(train, target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
-    test_set = test_datagen.flow_from_directory(test, target_size = (64, 64), batch_size = 32, class_mode = 'categorical')
+    # retrieve datasets
+    training_set = train_datagen.flow_from_directory(train,
+                                                     target_size = (32, 32),
+                                                     batch_size = BATCH_SIZE,
+                                                     class_mode = 'categorical')
+    
+    test_set = test_datagen.flow_from_directory(test,
+                                                target_size = (32, 32),
+                                                batch_size = BATCH_SIZE,
+                                                class_mode = 'categorical')
 
-    history = classifier.fit_generator(training_set, steps_per_epoch = 752, epochs = 5, 
-                                       validation_data = test_set, validation_steps = 188)
+    # training
+    history = classifier.fit_generator(training_set,
+                                       #steps_per_epoch = 752,
+                                       #validation_steps = 188,
+                                       epochs = EPOCHS, 
+                                       validation_data = test_set)
+
 
     # plots the model
     if plot_classifier:
-        plot_model(classifier, to_file='model/classifier1.png')
-        plot_model(classifier2, to_file='model/classifier2.png')
+        filepath = 'model/classifier1.png' if primary else 'model/classifier2.png'
+        plot_model(classifier, to_file = filepath)
         print("Model plots saved to model/")
 
     # save the classifier
@@ -79,8 +137,12 @@ def train(primary = True, save = True, plot_classifier = False):
     return classifier, history
 
 if __name__ == "__main__":
+
+    s = True # save model
+    plt = True # plot model layers
+    
     # build classifier for type 1 and 2
-    _, h = train(primary = True)
+    _, h = train(primary = True, save = s, plot_classifier = plt)
     plot_loss(h)
-    _, h2 = train(primary = False)
+    _, h2 = train(primary = False, save = s, plot_classifier = plt)
     plot_loss(h2)
