@@ -17,6 +17,8 @@ import os,random, sys
 
 from visualization import plot_loss
 
+SHAPE = 32
+
 def create_cnn(primary = True):
     ''' 
     creates the convolutional neural network classifier 
@@ -32,23 +34,23 @@ def create_cnn(primary = True):
     3 Dropout layers to prevent overfit
     after flatten, 2 dense layers
     '''
-    classifier.add(Conv2D(32, (3, 3),
+    classifier.add(Conv2D(64, (3, 3),
                           padding = 'same',
-                          input_shape = (32, 32, 3),
+                          input_shape = (SHAPE, SHAPE, 3),
                           activation = 'relu'))
-    classifier.add(Conv2D(32, (3, 3), activation='relu'))
+    #classifier.add(Conv2D(32, (3, 3), activation='relu'))
     classifier.add(MaxPooling2D(pool_size = (2, 2)))
     classifier.add(Dropout(0.25))
     
     classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
-    classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    #classifier.add(Conv2D(64, (3, 3), activation='relu'))
     classifier.add(MaxPooling2D(pool_size = (2, 2)))
     classifier.add(Dropout(0.25))
 
-    classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
-    classifier.add(Conv2D(64, (3, 3), activation='relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2)))
-    classifier.add(Dropout(0.25))
+    #classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
+    #classifier.add(Conv2D(64, (3, 3), activation='relu'))
+    #classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    #classifier.add(Dropout(0.25))
 
     # flatten output and create fully connected layers
     classifier.add(Flatten())
@@ -103,12 +105,12 @@ def train(primary = True, save = True, plot_classifier = False):
 
     # retrieve datasets
     training_set = train_datagen.flow_from_directory(train,
-                                                     target_size = (32, 32),
+                                                     target_size = (SHAPE, SHAPE),
                                                      batch_size = BATCH_SIZE,
                                                      class_mode = 'categorical')
     
     test_set = test_datagen.flow_from_directory(test,
-                                                target_size = (32, 32),
+                                                target_size = (SHAPE, SHAPE),
                                                 batch_size = BATCH_SIZE,
                                                 class_mode = 'categorical')
 
