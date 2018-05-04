@@ -1,23 +1,25 @@
+# (c) 2018 Tongyu Zhou, Tingda Wang
+# GUI for a simple pokemon type guessing game played against the predictive model
+
 from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk, Image
 import os, random
 import sys
-from preprocess import types
+from preprocess import types, get_pokemon
 
-def clicked(window, type_labels, correct_type, counter):
+def clicked(window, type_labels, correct_type, counter, name_txt):
     if correct_type:
         messagebox.showinfo('', 'Correct!')
         score = int(counter.cget("text").split(": ")[1])
         counter.configure(text="Score: " + str(score+1))
     else:
         messagebox.showinfo('', 'Incorrect')
-    pokemon_id = next_pokemon(window)
-    labels(window, type_labels, pokemon_id, counter)
+    pokemon_id = next_pokemon(window, name_txt)
+    labels(window, type_labels, pokemon_id, counter, name_txt)
     
-
 # Picks a random next pokemon to be guessed
-def next_pokemon(window):
+def next_pokemon(window, name_txt):
     path = "data/main-sprites/"
     
     game_vers = random.choice(os.listdir(path))
@@ -34,7 +36,7 @@ def next_pokemon(window):
     p = Label(window, image=image)
     p.photo = image
     p.place(x=150, y=100, anchor="center")
-
+    name_txt.set(get_pokemon(img).name)
     return img
 
 # Returns a random label
@@ -48,11 +50,14 @@ def rand():
     return image
 
 # Labels the type buttons
-def labels(window, type_labels, pokemon_id, counter):
+def labels(window, type_labels, pokemon_id, counter, name_txt):
     typing = types('data/Pokemon-2.csv')
     path = "type_labels/"
+    '''
     pokemon_id = ''.join((re.findall('\d+', pokemon_id)))
     type = typing[pokemon_id].type1
+    '''
+    type = get_pokemon(pokemon_id).type1
     type_labels[0] = (path + type + '.png', True)
 
     for i in range(1,4):
@@ -69,10 +74,10 @@ def labels(window, type_labels, pokemon_id, counter):
 
     random.shuffle(type_labels)
 
-    btn1 = Button(window, image=type_labels[0][0], command=lambda: clicked(window,type_labels,type_labels[0][1],counter))
-    btn2 = Button(window, image=type_labels[1][0], command=lambda: clicked(window,type_labels,type_labels[1][1],counter))
-    btn3 = Button(window, image=type_labels[2][0], command=lambda: clicked(window,type_labels,type_labels[2][1],counter))
-    btn4 = Button(window, image=type_labels[3][0], command=lambda: clicked(window,type_labels,type_labels[3][1],counter))
+    btn1 = Button(window, image=type_labels[0][0], command=lambda: clicked(window,type_labels,type_labels[0][1],counter, name_txt))
+    btn2 = Button(window, image=type_labels[1][0], command=lambda: clicked(window,type_labels,type_labels[1][1],counter, name_txt))
+    btn3 = Button(window, image=type_labels[2][0], command=lambda: clicked(window,type_labels,type_labels[2][1],counter, name_txt))
+    btn4 = Button(window, image=type_labels[3][0], command=lambda: clicked(window,type_labels,type_labels[3][1],counter, name_txt))
 
     btn1.place(x=100, y=200, anchor="center")
     btn2.place(x=100, y=250, anchor="center")
@@ -92,11 +97,15 @@ if __name__ == "__main__":
     f.update()
 
     type_labels = [(None, None), (None, None), (None, None), (None, None)]
-    counter = Label(window, text="Score: 0")
-    counter.place(x=150, y=25, anchor="center")
+    counter = Label(window, text = "Score: 0")
+    counter.place(x = 10, y = 10, anchor = "w")
 
-    pokemon_id = next_pokemon(window)
-    labels(window, type_labels, pokemon_id, counter)
+    v = StringVar()
+    name_label = Label(window, textvariable = v)
+    name_label.place(x = 150, y = 10, anchor = "center")
+
+    pokemon_id = next_pokemon(window, v)
+    labels(window, type_labels, pokemon_id, counter, v)
 
     window.mainloop()
 
