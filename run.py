@@ -1,7 +1,7 @@
 # (c) 2018 Tingda Wang, Tongyu Zhou
-# loads model from training and performs prediction on random test image
+# loads model from training and performs predictions and evaluations
 
-# Importing the Keras libraries and packages                                                 
+# Importing the Keras libraries and packages                                       
 from keras.models import Sequential
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
@@ -11,6 +11,10 @@ from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import plot_model
 from keras.models import load_model
+
+# evaluation functions
+from sklearn import metrics
+from sklearn.metrics import classification_report, accuracy_score
 
 import numpy as np
 import os,random, sys, re
@@ -34,7 +38,34 @@ def load_image(imagepath):
     test_image = np.expand_dims(test_image, axis = 0)
     return test_image
 
+def stats(type_dict, classifier, primary = True):
+    ''' 
+    computes manually the true and predicted numpy arrays 
+    then computes the precision, recall, and f-measure statistics
+    '''
+    test = 'type1_sorted/test' if primary else 'type2_sorted/test'
+    
+    true_types = []
+    pred_types =[]
+    types = [x for x in os.listdir(test) if os.path.isdir(os.path.join(test, x))]
+
+    for t in types:
+        true_type = t.split('/')[-1]
+        for img in os.listdir(test + '/' + t):
+            imgp = test + '/' + t + '/' + img
+            test_img = load_image(imgp)
+            pred = classifier.predict_classes(test_img)
+            true_types.append(type_dict[true_type])
+            pred_types.append(pred[0])
+    return np.array(true_types), np.array(pred_types)
+
 def run(evaluate = True, predict = True):
+    '''
+    function to perform prediction using models
+    evaluate determines whether to evaluate model through 
+    the Keras evaluation function, computing precision/recall statistics
+    predict will sample a random pokemon image to predict
+    '''
     
     classifier, classifier2 = load_models()
 
@@ -45,10 +76,11 @@ def run(evaluate = True, predict = True):
 
     # load test sets
     test_datagen = ImageDataGenerator(rescale = 1./255)
-    test_set = test_datagen.flow_from_directory(test, target_size = (32, 32), batch_size = 32, class_mode = 'categorical')
+    test_set = test_datagen.flow_from_directory(test, target_size = (32, 32), class_mode = 'categorical')
     test_set2 = test_datagen.flow_from_directory('type2_sorted/test', target_size = (32, 32), batch_size = 32, class_mode = 'categorical')
     
     if predict:
+        # predict random pokemon
         test_image = load_image(imagepath)
         result1 = classifier.predict_classes(test_image)
         result2 = classifier2.predict_classes(test_image)
@@ -64,13 +96,26 @@ def run(evaluate = True, predict = True):
         print("The predicted type is " + predicted_type + second)
 
     if evaluate:
+        # evaluates models
         print("Primary Type:")
         accuracy = classifier.evaluate_generator(test_set)
+       
+        v_t, v_p = stats(test_set.class_indices, classifier)
+        report = classification_report(v_t, v_p, target_names = list(test_set.class_indices.keys()))
+        print(report)
+        print(accuracy_score(v_t, v_p))
+        
         print("Loss: ", accuracy[0])
         print("Accuracy: ", accuracy[1])
 
-        print("Secondary:")
+        print("Secondary Type:")
         accuracy2 = classifier2.evaluate_generator(test_set2)
+
+        v_t, v_p = stats(test_set2.class_indices, classifier2, primary = False)
+        report = classification_report(v_t, v_p, target_names = list(test_set2.class_indices.keys()))
+        print(report)
+        print(accuracy_score(v_t, v_p))
+    
         print("Loss: ", accuracy2[0])
         print("Accuracy: ", accuracy2[1])
 
