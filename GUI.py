@@ -33,10 +33,14 @@ def next_pokemon(window, name_txt):
     pilImage = Image.open(file_name)
     pilImage = pilImage.resize((100, 100), Image.ANTIALIAS)
     image = ImageTk.PhotoImage(pilImage)
-    p = Label(window, image=image)
+    p = Label(window, image = image)
     p.photo = image
-    p.place(x=150, y=100, anchor="center")
+    p.place(x = 150, y = 100, anchor="center")
     name_txt.set(get_pokemon(img).name)
+
+    # TODO: emerald, soulsilver, and global link pictures don't show
+    #name_txt.set(game_vers + '/' + img)
+
     return img
 
 # Returns a random label
@@ -53,10 +57,6 @@ def rand():
 def labels(window, type_labels, pokemon_id, counter, name_txt):
     typing = types('data/Pokemon-2.csv')
     path = "type_labels/"
-    '''
-    pokemon_id = ''.join((re.findall('\d+', pokemon_id)))
-    type = typing[pokemon_id].type1
-    '''
     type = get_pokemon(pokemon_id).type1
     type_labels[0] = (path + type + '.png', True)
 
