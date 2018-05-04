@@ -78,7 +78,7 @@ def run(evaluate = True, predict = True):
     test_datagen = ImageDataGenerator(rescale = 1./255)
     test_set = test_datagen.flow_from_directory(test, target_size = (32, 32), class_mode = 'categorical')
     test_set2 = test_datagen.flow_from_directory('type2_sorted/test', target_size = (32, 32), batch_size = 32, class_mode = 'categorical')
-    
+
     if predict:
         # predict random pokemon
         test_image = load_image(imagepath)
@@ -119,5 +119,20 @@ def run(evaluate = True, predict = True):
         print("Loss: ", accuracy2[0])
         print("Accuracy: ", accuracy2[1])
 
+    return classifier, test_set
+
+def predict_single(img, classifier, test_set):
+        # predicts the type of the pokemon given by "img"                                                                        
+        test_image = load_image(img)
+        result1 = classifier.predict_classes(test_image)
+        predicted_type = [type for type, index in test_set.class_indices.items() if index == result1[0]][0]
+        pokemon = get_pokemon(img)
+        return predicted_type
+
 if __name__ == "__main__":
-    run()
+    img = 'data/main-sprites/gold/4.png'
+    img2 = 'data/main-sprites/gold/5.png'
+#    run(img,evaluate=False,predict=False,predict2=True)
+    classifier, test_set = run(evaluate=False,predict=False)
+    predict_single(img, classifier, test_set)
+    predict_single(img2, classifier, test_set)
