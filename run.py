@@ -20,6 +20,7 @@ import numpy as np
 import os,random, sys, re
 
 from preprocess import get_pokemon
+from visualization import plot_type
 
 # shape of image (SHAPE, SHAPE)
 SHAPE = 32
@@ -93,8 +94,9 @@ def run(evaluate = True, predict = True):
         second = "" if pokemon.type2 == 'None' else " and type " + pokemon.type2
         pred_sec = "" if predicted_type2 == 'None' else " and " + predicted_type2
         print("The Pokemon " + pokemon.name + " has type " + pokemon.type1 + second)
-        print("The predicted type is " + predicted_type + second)
-
+        print("The predicted type is " + predicted_type + pred_sec)
+        plot_type(imagepath, predicted = True, pred_types = [predicted_type, predicted_type2])
+        
     if evaluate:
         # evaluates models
         print("Primary Type:")
@@ -105,12 +107,12 @@ def run(evaluate = True, predict = True):
         print(report)
         print("Accuracy: ", accuracy_score(v_t, v_p))
 
-        print("\n -------------------------------")
+        print("\n ------------------------------- \n")
         print("Evaluation Statistics")
         print("Loss: ", accuracy[0])
         print("Accuracy: ", accuracy[1])
 
-        print("\n -------------------------------")
+        print("\n ------------------------------- \n")
         print("Secondary Type:")
         accuracy2 = classifier2.evaluate_generator(test_set2)
 
@@ -119,7 +121,7 @@ def run(evaluate = True, predict = True):
         print(report)
         print("Accuracy: ", accuracy_score(v_t, v_p))
 
-        print("\n -------------------------------")
+        print("\n ------------------------------- \n")
         print("Evaluation Statistics")
         print("Loss: ", accuracy2[0])
         print("Accuracy: ", accuracy2[1])
@@ -135,10 +137,12 @@ def predict_single(img, classifier, test_set):
         return predicted_type
 
 if __name__ == "__main__":
-    
-    run(evaluate = True, predict = True)
+    p = True
+    e = True
+    run(evaluate = e, predict = p)
 
     '''
+    # tests, ignore
     img = 'data/main-sprites/gold/4.png'
     img2 = 'data/main-sprites/gold/5.png'
 

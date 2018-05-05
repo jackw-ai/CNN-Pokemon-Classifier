@@ -133,7 +133,7 @@ def plot_type(imgpath = "", predicted = False, pred_types = []):
                 typeicon = mpimg.imread(typepath)
                 ax4.imshow(typeicon)
 
-            except:
+            except FileNotFoundError:
                 pass
             plt.axis('off')
 
