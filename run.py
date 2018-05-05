@@ -103,26 +103,31 @@ def run(evaluate = True, predict = True):
         v_t, v_p = stats(test_set.class_indices, classifier)
         report = classification_report(v_t, v_p, target_names = list(test_set.class_indices.keys()))
         print(report)
-        print(accuracy_score(v_t, v_p))
-        
+        print("Accuracy: ", accuracy_score(v_t, v_p))
+
+        print("\n -------------------------------")
+        print("Evaluation Statistics")
         print("Loss: ", accuracy[0])
         print("Accuracy: ", accuracy[1])
 
+        print("\n -------------------------------")
         print("Secondary Type:")
         accuracy2 = classifier2.evaluate_generator(test_set2)
 
         v_t, v_p = stats(test_set2.class_indices, classifier2, primary = False)
         report = classification_report(v_t, v_p, target_names = list(test_set2.class_indices.keys()))
         print(report)
-        print(accuracy_score(v_t, v_p))
-    
+        print("Accuracy: ", accuracy_score(v_t, v_p))
+
+        print("\n -------------------------------")
+        print("Evaluation Statistics")
         print("Loss: ", accuracy2[0])
         print("Accuracy: ", accuracy2[1])
 
     return classifier, test_set
 
 def predict_single(img, classifier, test_set):
-        # predicts the type of the pokemon given by "img"                                                                        
+        ''' predicts the type of the pokemon given by "img" '''
         test_image = load_image(img)
         result1 = classifier.predict_classes(test_image)
         predicted_type = [type for type, index in test_set.class_indices.items() if index == result1[0]][0]
@@ -130,9 +135,14 @@ def predict_single(img, classifier, test_set):
         return predicted_type
 
 if __name__ == "__main__":
+    
+    run(evaluate = True, predict = True)
+
+    '''
     img = 'data/main-sprites/gold/4.png'
     img2 = 'data/main-sprites/gold/5.png'
-#    run(img,evaluate=False,predict=False,predict2=True)
+
     classifier, test_set = run(evaluate=False,predict=False)
     predict_single(img, classifier, test_set)
     predict_single(img2, classifier, test_set)
+    '''

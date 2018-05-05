@@ -107,17 +107,17 @@ if __name__ == "__main__":
 
     type_labels = [(None, None), (None, None), (None, None), (None, None)]
 
-    player_counter = Label(window, text="Player score: 0")
-    player_counter.place(x=100, y=25, anchor="center")
+    player_counter = Label(window, text = "Player score: 0")
+    player_counter.place(x = 65, y = 10, anchor = "center")
     
-    AI_counter = Label(window, text="AI score: 0")
-    AI_counter.place(x=200, y=25, anchor="center")
+    AI_counter = Label(window, text = "AI score: 0")
+    AI_counter.place(x = 250, y = 10, anchor = "center")
 
     classifier, test_set = run(evaluate = False, predict = False)
 
     v = StringVar()
     name_label = Label(window, textvariable = v)
-    name_label.place(x = 150, y = 10, anchor = "center")
+    name_label.place(x = 150, y = 30, anchor = "center")
 
     pokemon_id, prediction = next_pokemon(window, classifier, test_set, v)
     labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, v)
