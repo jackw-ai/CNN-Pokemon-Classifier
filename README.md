@@ -31,8 +31,6 @@ There have been some issues with loading the models in the `anaconda` environmen
 
 ![Sample Figure(2)](/figures/conquest.png)
 
-![Sample Figure(3)](/figures/pred5.png)
-
  ## Model Training
  `cnn.py` contains the functions to build, train, and save the convolutional neural network models. Running 
  ```python3 cnn.py```
@@ -49,4 +47,7 @@ There have been some issues with loading the models in the `anaconda` environmen
 
 The program will then perform evaluations on the test sets using the `evaluation_generator` function from `Keras` to return the test accuracy and loss in the writeup. Furthermore, the program will compute the precision, recall, and f-score metrics on the entire test set and print to the terminal screen. These statistics were included in the final writeup as well.
 
+# Extension: Fun Pokemon Type Classification Game!!!
+![Pokemon Type Classification Game!](/figures/GUI.png)
 
+To aid in visualizing the project, we created a GUI that will pit the player against the model in predicting the type of random pokemon. As an advantage for the player, there will only be four options to choose from whereas the model must infer the type from all 18 possiblities. We hope this can be a fun way to evaluate the model performance and serve as a homage to the pokemon games of our childhood.
