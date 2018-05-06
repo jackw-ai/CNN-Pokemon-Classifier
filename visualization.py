@@ -10,6 +10,8 @@ import os, random
 
 from preprocess import get_pokemon
 
+labels = 'data/type_labels/'
+
 def plot_pokemon(id = random.randint(1, 700)):
     ''' 
     plots images of a pokemon given id 
@@ -91,13 +93,13 @@ def plot_type(imgpath = "", predicted = False, pred_types = []):
         plt.axis('off')
         
         ax1 = plt.subplot(gs[1, 0])
-        typepath = "type_labels/{n}.png".format(n = pkmn.type1)
+        typepath = "data/type_labels/{n}.png".format(n = pkmn.type1)
         typeicon = mpimg.imread(typepath)
         ax1.imshow(typeicon)
         plt.axis('off')
         
         ax1 = plt.subplot(gs[1, 1])
-        type2path = "type_labels/{n}.png".format(n = pkmn.type2)
+        type2path = "data/type_labels/{n}.png".format(n = pkmn.type2)
         type2icon = mpimg.imread(type2path)
         ax1.imshow(type2icon)
         plt.axis('off')
@@ -112,7 +114,7 @@ def plot_type(imgpath = "", predicted = False, pred_types = []):
         plt.axis('off')
     
         ax1 = plt.subplot(gs[1])
-        typepath = "type_labels/{n}.png".format(n = pkmn.type1)
+        typepath = "data/type_labels/{n}.png".format(n = pkmn.type1)
         typeicon = mpimg.imread(typepath)
         ax1.imshow(typeicon)
         plt.axis('off')
@@ -122,14 +124,14 @@ def plot_type(imgpath = "", predicted = False, pred_types = []):
         if dual_type:
             ax3 = plt.subplot(gs[2, 0])
             plt.text(-80, 12, "Predicted:")
-            typepath = "type_labels/{n}.png".format(n = pred_types[0])
+            typepath = "data/type_labels/{n}.png".format(n = pred_types[0])
             typeicon = mpimg.imread(typepath)
             ax3.imshow(typeicon)
             plt.axis('off')
 
             ax4 = plt.subplot(gs[2, 1])
             try:
-                typepath = "type_labels/{n}.png".format(n = pred_types[1])
+                typepath = "data/type_labels/{n}.png".format(n = pred_types[1])
                 typeicon = mpimg.imread(typepath)
                 ax4.imshow(typeicon)
 
@@ -140,7 +142,7 @@ def plot_type(imgpath = "", predicted = False, pred_types = []):
         else:
             ax3 = plt.subplot(gs[2, :])
             plt.text(-80, 12, "Predicted:")
-            typepath = "type_labels/{n}.png".format(n = pred_types[0])
+            typepath = "data/type_labels/{n}.png".format(n = pred_types[0])
             typeicon = mpimg.imread(typepath)
             ax3.imshow(typeicon)
             plt.axis('off')

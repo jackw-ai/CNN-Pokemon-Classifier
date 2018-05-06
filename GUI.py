@@ -7,9 +7,17 @@ from PIL import ImageTk, Image
 import os, random
 import sys
 
+# -----------
+# remove these lines if code not working
+# for set TkAgg backend for compatibility between matplotlib and tkinter
+import matplotlib
+matplotlib.use("TkAgg")
+# -----------
+
 from preprocess import types, get_pokemon
 from run import load_models, load_image, run, predict_single
 
+# determines the outcome of a click
 def clicked(window, type_labels, correct_type, player_counter, AI_counter, AI_answer, classifier, test_set, name_txt):
     if correct_type:
         score = int(player_counter.cget("text").split(": ")[1])
@@ -47,7 +55,7 @@ def next_pokemon(window, classifier, test_set, name_txt):
 
 # Returns a random label
 def rand():
-    path = "type_labels/"                                                                                                       
+    path = "data/type_labels/"                                                                                                       
     name = path + random.choice(os.listdir(path))                                                                               
     while str(name).endswith('.DS_Store'):
             name = path + random.choice(os.listdir(path))
@@ -58,7 +66,7 @@ def rand():
 # Labels the type buttons
 def labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, name_txt):
     typing = types('data/Pokemon-2.csv')
-    path = "type_labels/"
+    path = "data/type_labels/"
     type = get_pokemon(pokemon_id).type1
     AI_answer = (type == prediction)
 
