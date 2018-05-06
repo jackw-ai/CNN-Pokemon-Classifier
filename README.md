@@ -76,3 +76,5 @@ To aid in visualizing the project, we created a GUI that will pit the player aga
 The GUI and game was made using the `Tkinter` package in `python3`. To play, simply launch:
 
 ```python3 GUI.py```
+
+Note that in some environments there were compatibility issues between `matplotlib` and `tkinter` causing the game to crash. Some lines have been added to `GUI.py` to fix these issues. If they cause any problems in other machines, consider removing the two lines denoted in the code.
