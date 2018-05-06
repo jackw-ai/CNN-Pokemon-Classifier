@@ -77,4 +77,6 @@ The GUI and game was made using the `Tkinter` package in `python3`. To play, sim
 
 ```python3 GUI.py```
 
+Gotta classify 'em all!
+
 Note that in some environments there were compatibility issues between `matplotlib` and `tkinter` causing the game to crash. Some lines have been added to `GUI.py` to fix these issues. If they cause any problems in other machines, consider removing the two lines denoted in the code.
