@@ -54,7 +54,7 @@ def create_cnn(primary = True):
 
     # flatten output and create fully connected layers
     classifier.add(Flatten())
-    classifier.add(Dense(512, input_dim = 4, activation = 'relu'))
+    classifier.add(Dense(256, input_dim = 4, activation = 'relu'))
     classifier.add(Dropout(0.5))
     
     # one more category for None in secondary type
@@ -145,6 +145,9 @@ if __name__ == "__main__":
     
     # build classifier for type 1 and 2
     _, h = train(primary = True, save = s, plot_classifier = plt)
-    plot_loss(h)
+    
     _, h2 = train(primary = False, save = s, plot_classifier = plt)
-    plot_loss(h2)
+
+    if plt: # plots accuracy and loss curves
+        plot_loss(h)
+        plot_loss(h2)
