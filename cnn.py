@@ -122,7 +122,7 @@ def train(primary = True, save = True, plot_classifier = False):
                                        #steps_per_epoch = 752,
                                        #validation_steps = 188,
                                        epochs = EPOCHS, 
-                                       validation_data = test_set, shuffle = true)
+                                       validation_data = test_set, shuffle = True)
 
 
     # plots the model
