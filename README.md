@@ -51,3 +51,6 @@ The program will then perform evaluations on the test sets using the `evaluation
 ![Pokemon Type Classification Game!](/figures/GUI.png)
 
 To aid in visualizing the project, we created a GUI that will pit the player against the model in predicting the type of random pokemon. As an advantage for the player, there will only be four options to choose from whereas the model must infer the type from all 18 possiblities. We hope this can be a fun way to evaluate the model performance and serve as a homage to the pokemon games of our childhood.
+
+The GUI and game was made using the `Tkinter` package in `python3`. To play, simply launch:
+```python3 GUI.py```
