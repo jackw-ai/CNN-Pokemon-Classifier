@@ -39,12 +39,13 @@ def create_cnn(primary = True):
                           input_shape = (SHAPE, SHAPE, 3),
                           activation = 'relu'))
     #classifier.add(Conv2D(32, (3, 3), activation='relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    classifier.add(MaxPooling2D(pool_size = (2, 2),strides = 2))
     classifier.add(Dropout(0.25))
     
     classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
     classifier.add(Conv2D(64, (3, 3), activation='relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2)))
+    
+    classifier.add(MaxPooling2D(pool_size = (2, 2),strides = 2))
     classifier.add(Dropout(0.25))
 
     #classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
@@ -86,7 +87,7 @@ def train(primary = True, save = True, plot_classifier = False):
                        loss = 'categorical_crossentropy',
                        metrics = ['accuracy'])
 
-    # prevent further overfit by randomly transforming the training images
+    # data augementation: prevent further overfit by randomly transforming the training images
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
         rotation_range = 10,
