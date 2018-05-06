@@ -25,4 +25,6 @@ There have been some issues with loading the models in the `anaconda` environmen
  ## Model Training
  `cnn.py` contains the functions to build, train, and save the convolutional neural network models. Running 
  ```python3 cnn.py```
- will begin training the primary and secondary type models on the test and training data sets. The classifiers, after training for 20 epochs, will be saved to `\model` as `.h5` files. Optional training accuracy and loss charts will be generated as well as a `.png` representation of the model architecture such as ![Classifier](/model/classifier1.png),
+ will begin training the primary and secondary type models on the test and training data sets. The classifiers, after training for 20 epochs, will be saved to `\model` as `.h5` files. Optional training accuracy and loss charts will be generated as well as a `.png` representation of the model architecture such as 
+ 
+ [Classifier](/model/classifier1.png)
