@@ -1,5 +1,5 @@
 # (c) 2018 Tongyu Zhou, Tingda Wang, Xuanzhen Zhang
-# trains CNN and saves classifier to .h5 file
+# trains ConvNet pokemon typ classifier and saves to .h5 file in \models
 
 # Importing the Keras libraries and packages
 from keras.models import Sequential
@@ -17,6 +17,7 @@ import os,random, sys
 
 from visualization import plot_loss
 
+# shape of img: SHAPE x SHAPE
 SHAPE = 32
 
 def create_cnn(primary = True):
