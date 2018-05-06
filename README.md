@@ -8,7 +8,7 @@ The image dataset comes from [veekun](https://veekun.com/dex/downloads) containi
 
 The pokemon stat and type data comes from [kaggle](https://www.kaggle.com/abcsds/pokemon) and contains id, stats, type, and legendary status information on all the pokemon to date.
 
-Additionally, in `/data/type_labels` are the type labels of all 18 types, which are extracted from the main games, and are copyright of Nintendo Inc.
+Additionally, in `/data/type_labels` are the type labels of all 18 types for use in visualization and the GUI. The labels are extracted from the main games, and are copyright of Nintendo Inc.
 
 # Package requirements
 To run the code, use `python3`, and ensure the following packages are installed:
