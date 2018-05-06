@@ -1,5 +1,5 @@
 # Pokemon Type Classifier
-This project aims to classify pokemon types given an pokemon image using convolutional neural networks.
+This project aims to classify the primary and secondary types of a given pokemon from its image using convolutional neural networks.
 
 ![Pokemon!](/figures/preds.png)
 
