@@ -83,7 +83,7 @@ def train(primary = True, save = True, plot_classifier = False):
     EPOCHS = 20
     
     # uses adam optimizer and crossentropy loss function
-    classifier.compile(optimizer = 'adam',
+    classifier.compile(Adam(lr = 0.0001),
                        loss = 'categorical_crossentropy',
                        metrics = ['accuracy'])
 
