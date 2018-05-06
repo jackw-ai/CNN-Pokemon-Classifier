@@ -1,4 +1,4 @@
-# (c) 2018 Tongyu Zhou, Tingda Wang
+# (c) 2018 Tongyu Zhou, Tingda Wang, Xuanzhen Zhang
 # trains CNN and saves classifier to .h5 file
 
 # Importing the Keras libraries and packages
@@ -144,8 +144,7 @@ if __name__ == "__main__":
     plt = True # plot model layers
     
     # build classifier for type 1 and 2
-    _, h = train(primary = True, save = s, plot_classifier = plt)
-    
+    _, h = train(primary = True, save = s, plot_classifier = plt)    
     _, h2 = train(primary = False, save = s, plot_classifier = plt)
 
     if plt: # plots accuracy and loss curves
