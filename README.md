@@ -6,5 +6,14 @@ The image dataset comes from [veekun](https://veekun.com/dex/downloads) containi
 
 The pokemon stat and type data comes from [kaggle](https://www.kaggle.com/abcsds/pokemon) and contains id, stats, type, and legendary status information on all the pokemon to date.
 
-# Running the code
+# Package requirements
+To run the code, use `python3`, and ensure the following packages are installed:
+Tensorflow
+Keras
+Matplotlib
+Numpy
+Pandas
 
+There have been some issues with loading the models in the `anaconda` environment due to serialization, but packages installed with `pip3` should work fine. If an issue occurs, one can always retrain the models by running ``` python3 cnn.py ```
+
+# Running the code
