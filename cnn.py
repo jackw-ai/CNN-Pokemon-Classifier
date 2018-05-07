@@ -89,7 +89,7 @@ def train(primary = True, save = True, plot_classifier = False):
 
     # data augmentation: prevent further overfitting
     
-    by randomly transforming the training images
+    # by randomly transforming the training images
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
         rotation_range = 10,
