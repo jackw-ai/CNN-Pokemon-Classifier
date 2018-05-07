@@ -87,7 +87,7 @@ def train(primary = True, save = True, plot_classifier = False):
                        loss = 'categorical_crossentropy',
                        metrics = ['accuracy'])
 
-    # data augmentation: prevent further over
+    # data augmentation: prevent further overfitting
     
     by randomly transforming the training images
     train_datagen = ImageDataGenerator(
