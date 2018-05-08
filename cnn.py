@@ -11,6 +11,8 @@ from keras.layers import Dropout
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import plot_model
+from keras import *
+
 
 import numpy as np
 import os,random, sys
@@ -19,6 +21,7 @@ from visualization import plot_loss
 
 # shape of img: SHAPE x SHAPE
 SHAPE = 32
+FINE_TUNE_SHAPE = 48
 
 def create_cnn(primary = True):
     ''' 
@@ -40,12 +43,12 @@ def create_cnn(primary = True):
                           input_shape = (SHAPE, SHAPE, 3),
                           activation = 'relu'))
     #classifier.add(Conv2D(32, (3, 3), activation='relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+    classifier.add(MaxPooling2D(pool_size = (2, 2)))
     classifier.add(Dropout(0.25))
     
     classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
     classifier.add(Conv2D(64, (3, 3), activation='relu'))
-    classifier.add(MaxPooling2D(pool_size = (2, 2), strides = 2))
+    classifier.add(MaxPooling2D(pool_size = (2, 2)))
     classifier.add(Dropout(0.25))
 
     #classifier.add(Conv2D(64, (3, 3), padding = 'same', activation = 'relu'))
@@ -65,6 +68,157 @@ def create_cnn(primary = True):
 
     # returns built CNN
     return classifier
+
+
+def fine_tune(primary = True):
+    categories = 18 if primary else 19
+    
+    
+    vgg16md = applications.vgg16.VGG16(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights='imagenet'
+                                       )
+    
+    
+    # vgg16md.summary()
+    ftmodel = Sequential()
+    
+    for layer in vgg16md.layers[:-12]:
+        ftmodel.add(layer)
+    # ftmodel.layers.pop()
+    for layer in ftmodel.layers:
+        layer.trainable = False
+
+    # ftmodel.summary()
+
+    ftmodel.add(layers.Flatten())
+
+    ftmodel.add(layers.Dense(categories, activation = 'softmax'))
+
+    ftmodel.summary()
+    
+
+    '''    
+    mbNet = applications.mobilenet.MobileNet(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),
+                                       )
+    
+    # vgg16md.summary()
+    ftmodel = Sequential()
+    
+    for layer in mbNet.layers:
+        ftmodel.add(layer)
+    ftmodel.layers.pop()
+    for layer in ftmodel.layers:
+        layer.trainable = False
+
+    # ftmodel.summary()
+
+    # ftmodel.add(Dense(categories, input_dim = 4, activation = 'softmax'))
+
+    ftmodel.add(Dense(256, input_dim = 4, activation = 'relu'))
+    ftmodel.add(Dropout(0.5))
+    ftmodel.add(Dense(categories, activation = 'softmax'))
+
+    # ftmodel.summary()
+    '''
+    
+    
+    '''
+    xceptionmd = applications.xception.Xception(# include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),
+                                                )
+
+    # xceptionmd.summary()
+                                               
+    ftmodel = Sequential()
+    
+    for layer in xceptionmd.layers:
+        ftmodel.add(layer)
+    ftmodel.layers.pop()
+    for layer in ftmodel.layers:
+        layer.trainable = False
+
+    ftmodel.summary()
+    
+    ftmodel.add(Dense(categories, activation = 'softmax'))
+
+    # ftmodel.summary()
+    '''
+    
+    
+    return ftmodel
+
+def train_fine_tune(primary = True, save = True, plot_classifier = False):
+    # get model
+    ftmodel = fine_tune(primary)
+
+    # batch size
+    BATCH_SIZE = 64
+
+    # number of training epochs
+    EPOCHS = 20
+    
+    # uses adam optimizer and crossentropy loss function
+    ftmodel.compile(optimizer = 'adam',
+                       loss = 'categorical_crossentropy',
+                       metrics = ['accuracy'])
+
+    # data augmentation: prevent overfitting by randomly transforming the training images
+    train_datagen = ImageDataGenerator(
+        rescale = 1./255,
+        rotation_range = 10,
+        shear_range = 0.2,
+        zoom_range = 0.2,
+        width_shift_range = 0.1,
+        height_shift_range = 0.1,
+        horizontal_flip = True,
+        vertical_flip = True)
+    
+    test_datagen = ImageDataGenerator(rescale = 1./255)
+
+    # file path depends on the model
+    train = 'type1_sorted/train' if primary else 'type2_sorted/train' 
+    test = 'type1_sorted/test' if primary else 'type2_sorted/test'
+
+    # CreateImageGenerator
+    
+
+    # retrieve datasets
+    training_set = train_datagen.flow_from_directory(train,
+                                                     target_size = (FINE_TUNE_SHAPE, FINE_TUNE_SHAPE),
+                                                     batch_size = BATCH_SIZE,
+                                                     class_mode = 'categorical'
+                                                            )
+    
+    test_set = train_datagen.flow_from_directory(test,
+                                                target_size = (FINE_TUNE_SHAPE, FINE_TUNE_SHAPE),
+                                                batch_size = BATCH_SIZE,
+                                                class_mode = 'categorical'
+                                                        )
+
+    
+    # training
+    history = ftmodel.fit_generator(training_set,
+                                       #steps_per_epoch = 752,
+                                       #validation_steps = 188,
+                                       epochs = EPOCHS, 
+                                       validation_data = test_set,
+                                       verbose = 2)
+
+    print("HaHa")
+    # plots the model
+    if plot_classifier:
+        filepath = 'model/ftmodel1.png' if primary else 'model/ftmodel2.png'
+        plot_model(ftmodel, to_file = filepath)
+        print("Model plots saved to model/")
+
+    # save the ftmodel
+    if save:
+        if not os.path.exists(os.path.dirname("model/")):
+            os.makedirs(os.path.dirname("model/"))
+        filename = "ftmodel1" if primary else "ftmodel2"
+        ftmodel.save("model/" + filename + ".h5")
+        print("Saved model to disk")
+
+    # return classifier, history
+
 
 def train(primary = True, save = True, plot_classifier = False):
     '''
@@ -87,7 +241,7 @@ def train(primary = True, save = True, plot_classifier = False):
                        loss = 'categorical_crossentropy',
                        metrics = ['accuracy'])
 
-    # data augmentation: prevent further overfittin by randomly transforming the training images
+    # data augmentation: prevent further overfit by randomly transforming the training images
     train_datagen = ImageDataGenerator(
         rescale = 1./255,
         rotation_range = 10,
@@ -120,8 +274,7 @@ def train(primary = True, save = True, plot_classifier = False):
                                        #steps_per_epoch = 752,
                                        #validation_steps = 188,
                                        epochs = EPOCHS, 
-                                       validation_data = test_set, 
-                                       shuffle = True)
+                                       validation_data = test_set)
 
 
     # plots the model
@@ -144,11 +297,16 @@ if __name__ == "__main__":
 
     s = True # save model
     plt = True # plot model layers
+
+    # fine_tune()
     
     # build classifier for type 1 and 2
-    _, h = train(primary = True, save = s, plot_classifier = plt)    
-    _, h2 = train(primary = False, save = s, plot_classifier = plt)
+    _, h = train_fine_tune(primary = True, save = s, plot_classifier = plt)    
+    _, h2 = train_fine_tune(primary = False, save = s, plot_classifier = plt)
 
     if plt: # plots accuracy and loss curves
         plot_loss(h)
         plot_loss(h2)
+
+
+
