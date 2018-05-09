@@ -6,6 +6,7 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 import os, random
 import sys
+from queue import Queue
 
 # -----------
 # remove these lines if code not working
@@ -44,6 +45,7 @@ def clicked(correct_type):
 
     next_pokemon()
     labels()
+    pd.queue.put("click")
 
 
 def random_sprite():
@@ -124,6 +126,8 @@ def labels():
 
 
 def gui():
+    pd.queue = Queue()
+
     window = Tk()
     pd.window = window
     pd.window.title("Pokemon Classification Game")

@@ -9,7 +9,6 @@ import random
 import GUI
 import threading
 
-window = None
 db = {}
 
 sio = socketio.AsyncServer()
@@ -18,6 +17,8 @@ sio.attach(app)
 
 def update_item():
     db["item"] = GUI.random_sprite()
+    GUI.set_pokemon(db["item"][0], db["item"][1])
+    GUI.labels()
 
 async def index(request):
     """Serve the client-side application."""
@@ -38,6 +39,9 @@ async def request_item(sid, data):
     if "item" not in db:
         update_item()
     db_item = db["item"]
+    if data is not None and data[0] == db_item[0] and data[1] == db_item[1]:
+        update_item()
+    db_item = db["item"]
     print("sending item ", db_item)
     await sio.emit('request_item', db_item, room=sid)
 
@@ -49,9 +53,9 @@ def disconnect(sid):
 app.router.add_get('/', index)
 
 class MultiServer(threading.Thread):
-    def __init__(self, window):
+    def __init__(self, pd):
         threading.Thread.__init__(self)
-        self.window = window
+        self.pd = pd
 
     def run(self):
         loop = asyncio.new_event_loop()
@@ -60,5 +64,7 @@ class MultiServer(threading.Thread):
 
 if __name__ == '__main__':
     GUI.gui()
-    MultiServer(GUI.pd).start()
+    t = MultiServer(GUI.pd)
+    t.daemon = True
+    t.start()
     GUI.pd.window.mainloop()

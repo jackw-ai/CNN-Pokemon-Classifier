@@ -22,6 +22,7 @@ class Namespace(BaseNamespace):
 
     def on_request_response(self, *args):
         print('on_request_response', args)
+        self.pd.net_last_server = args
         GUI.set_pokemon(args[0], args[1])
         GUI.labels()
 
@@ -30,6 +31,7 @@ class MultiClient(threading.Thread):
     def __init__(self, pd):
         threading.Thread.__init__(self)
         self.pd = pd
+        self.pd.hook = self
 
     def run(self):
         print("abc")
@@ -39,15 +41,20 @@ class MultiClient(threading.Thread):
         chat_namespace.bind(self.pd)
         socketIO.on('reply', chat_namespace.on_reply)
         socketIO.on('request_item', chat_namespace.on_request_response)
-        chat_namespace.emit('request_item', {})
+        chat_namespace.emit('request_item', None)
         socketIO.wait(seconds=1)
 
         while True:
-            s = input('Send message: ')
-            chat_namespace.emit("chat message", s)
-            socketIO.wait(seconds=0.1)
+            #s = input('Send message: ')
+            #chat_namespace.emit("chat message", s)
+            #socketIO.wait(seconds=0.1)
+            event = self.pd.queue.get()
+            chat_namespace.emit('request_item', self.pd.net_last_server)
+            socketIO.wait(seconds=1)
 
 if __name__ == '__main__':
     GUI.gui()
-    MultiClient(GUI.pd).start()
+    t = MultiClient(GUI.pd)
+    t.daemon = True
+    t.start()
     GUI.pd.window.mainloop()
