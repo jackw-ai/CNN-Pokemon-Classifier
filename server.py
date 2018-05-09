@@ -59,6 +59,6 @@ class MultiServer(threading.Thread):
         web.run_app(app)
 
 if __name__ == '__main__':
-    window = GUI.gui()
-    MultiServer(window).start()
-    window.mainloop()
+    GUI.gui()
+    MultiServer(GUI.pd).start()
+    GUI.pd.window.mainloop()

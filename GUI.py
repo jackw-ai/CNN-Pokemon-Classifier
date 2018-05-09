@@ -18,6 +18,17 @@ from preprocess import types, get_pokemon
 from run import load_models, load_image, run, predict_single
 
 class GUIData:
+    #Attrs:
+    #pd.AI_answer
+    #pd.AI_counter
+    #pd.classifier
+    #pd.name_txt
+    #pd.player_counter
+    #pd.pokemon_id
+    #pd.prediction
+    #pd.test_set
+    #pd.type_labels
+    #pd.window
     pass
 
 pd = GUIData()
@@ -111,6 +122,7 @@ def labels():
     btn3.place(x=200, y=200, anchor="center")
     btn4.place(x=200, y=250, anchor="center")
 
+
 def gui():
     window = Tk()
     pd.window = window
@@ -141,8 +153,6 @@ def gui():
     next_pokemon()
     labels()
 
-    return window
-
 if __name__ == "__main__":
-    window = gui()
+    gui()
     window.mainloop()

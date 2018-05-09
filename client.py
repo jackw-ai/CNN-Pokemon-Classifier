@@ -1,12 +1,12 @@
 from socketIO_client import SocketIO, BaseNamespace
-from GUI import gui
+import GUI
 import threading
 
 class Namespace(BaseNamespace):
 
     #Pass in a multiclient
-    def bind(self, client):
-        self.client = client
+    def bind(self, pd):
+        self.pd = pd
 
     def on_connect(self):
         print('[Connected]')
@@ -22,18 +22,21 @@ class Namespace(BaseNamespace):
 
     def on_request_response(self, *args):
         print('on_request_response', args)
+        GUI.set_pokemon(args[0], args[1])
+        GUI.labels()
 
 
 class MultiClient(threading.Thread):
-    def __init__(self, window):
+    def __init__(self, pd):
         threading.Thread.__init__(self)
-        self.window = window
+        self.pd = pd
 
     def run(self):
         print("abc")
 
         socketIO = SocketIO('http://127.0.0.1', 8080)
         chat_namespace = socketIO.define(Namespace, '/chat')
+        chat_namespace.bind(self.pd)
         socketIO.on('reply', chat_namespace.on_reply)
         socketIO.on('request_item', chat_namespace.on_request_response)
         chat_namespace.emit('request_item', {})
@@ -45,6 +48,6 @@ class MultiClient(threading.Thread):
             socketIO.wait(seconds=0.1)
 
 if __name__ == '__main__':
-    window = gui()
-    MultiClient(window).start()
-    window.mainloop()
+    GUI.gui()
+    MultiClient(GUI.pd).start()
+    GUI.pd.window.mainloop()
