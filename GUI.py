@@ -29,17 +29,22 @@ def clicked(window, type_labels, correct_type, player_counter, AI_counter, AI_an
     pokemon_id, prediction = next_pokemon(window, classifier, test_set, name_txt)
     labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, name_txt)
 
-# Picks a random next pokemon to be guessed
-def next_pokemon(window, classifier, test_set, name_txt):
+
+def random_sprite():
     path = "data/main-sprites/"
-    
+
     game_vers = random.choice(os.listdir(path))
     while str(game_vers).endswith('.DS_Store'):
         game_vers = random.choice(os.listdir(path))
     img = random.choice(os.listdir(path + game_vers))
     while not str(img).endswith('png'):
         img = random.choice(os.listdir(path + game_vers))
-    file_name = path + game_vers + '/' + img
+    return (path + game_vers + '/' + img, img)
+
+# Picks a random next pokemon to be guessed
+def next_pokemon(window, classifier, test_set, name_txt):
+
+    (file_name, img) = random_sprite()
 
     pilImage = Image.open(file_name)
     pilImage = pilImage.resize((100, 100), Image.ANTIALIAS)
@@ -55,12 +60,12 @@ def next_pokemon(window, classifier, test_set, name_txt):
 
 # Returns a random label
 def rand():
-    path = "data/type_labels/"                                                                                                       
-    name = path + random.choice(os.listdir(path))                                                                               
+    path = "data/type_labels/"
+    name = path + random.choice(os.listdir(path))
     while str(name).endswith('.DS_Store'):
             name = path + random.choice(os.listdir(path))
-    pilImage = Image.open(name)                                                                                                 
-    image = ImageTk.PhotoImage(pilImage)   
+    pilImage = Image.open(name)
+    image = ImageTk.PhotoImage(pilImage)
     return image
 
 # Labels the type buttons
@@ -87,13 +92,13 @@ def labels(window, type_labels, pokemon_id, player_counter, AI_counter, predicti
     random.shuffle(type_labels)
 
 
-    btn1 = Button(window, image=type_labels[0][0], command=lambda: 
+    btn1 = Button(window, image=type_labels[0][0], command=lambda:
                   clicked(window,type_labels,type_labels[0][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn2 = Button(window, image=type_labels[1][0], command=lambda: 
+    btn2 = Button(window, image=type_labels[1][0], command=lambda:
                   clicked(window,type_labels,type_labels[1][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn3 = Button(window, image=type_labels[2][0], command=lambda: 
+    btn3 = Button(window, image=type_labels[2][0], command=lambda:
                   clicked(window,type_labels,type_labels[2][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn4 = Button(window, image=type_labels[3][0], command=lambda: 
+    btn4 = Button(window, image=type_labels[3][0], command=lambda:
                   clicked(window,type_labels,type_labels[3][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
 
     btn1.place(x=100, y=200, anchor="center")
@@ -101,9 +106,7 @@ def labels(window, type_labels, pokemon_id, player_counter, AI_counter, predicti
     btn3.place(x=200, y=200, anchor="center")
     btn4.place(x=200, y=250, anchor="center")
 
-
-if __name__ == "__main__":
-
+def gui():
     window = Tk()
     window.title("Pokemon Classification Game")
     window.geometry('300x300')
@@ -117,7 +120,7 @@ if __name__ == "__main__":
 
     player_counter = Label(window, text = "Player score: 0")
     player_counter.place(x = 65, y = 10, anchor = "center")
-    
+
     AI_counter = Label(window, text = "AI score: 0")
     AI_counter.place(x = 250, y = 10, anchor = "center")
 
@@ -130,5 +133,8 @@ if __name__ == "__main__":
     pokemon_id, prediction = next_pokemon(window, classifier, test_set, v)
     labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, v)
 
-    window.mainloop()
+    return window
 
+if __name__ == "__main__":
+    window = gui()
+    window.mainloop()
