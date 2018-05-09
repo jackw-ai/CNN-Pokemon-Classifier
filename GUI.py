@@ -17,17 +17,22 @@ matplotlib.use("TkAgg")
 from preprocess import types, get_pokemon
 from run import load_models, load_image, run, predict_single
 
-# determines the outcome of a click
-def clicked(window, type_labels, correct_type, player_counter, AI_counter, AI_answer, classifier, test_set, name_txt):
-    if correct_type:
-        score = int(player_counter.cget("text").split(": ")[1])
-        player_counter.configure(text="Player score: " + str(score+1))
-    if AI_answer:
-        score = int(AI_counter.cget("text").split(": ")[1])
-        AI_counter.configure(text="AI score: " + str(score+1))
+class GUIData:
+    pass
 
-    pokemon_id, prediction = next_pokemon(window, classifier, test_set, name_txt)
-    labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, name_txt)
+pd = GUIData()
+
+# determines the outcome of a click
+def clicked(correct_type):
+    if correct_type:
+        score = int(pd.player_counter.cget("text").split(": ")[1])
+        pd.player_counter.configure(text="Player score: " + str(score+1))
+    if pd.AI_answer:
+        score = int(pd.AI_counter.cget("text").split(": ")[1])
+        pd.AI_counter.configure(text="AI score: " + str(score+1))
+
+    next_pokemon()
+    labels()
 
 
 def random_sprite():
@@ -42,21 +47,21 @@ def random_sprite():
     return (path + game_vers + '/' + img, img)
 
 # Picks a random next pokemon to be guessed
-def next_pokemon(window, classifier, test_set, name_txt):
-
+def next_pokemon():
     (file_name, img) = random_sprite()
+    set_pokemon(file_name, img)
 
+def set_pokemon(file_name, img):
     pilImage = Image.open(file_name)
     pilImage = pilImage.resize((100, 100), Image.ANTIALIAS)
     image = ImageTk.PhotoImage(pilImage)
-    p = Label(window, image = image)
+    p = Label(pd.window, image = image)
     p.photo = image
     p.place(x=150, y=130, anchor="center")
-    name_txt.set(get_pokemon(img).name)
+    pd.name_txt.set(get_pokemon(img).name)
 
-    prediction = predict_single(file_name, classifier, test_set)
-
-    return img, prediction
+    pd.prediction = predict_single(file_name, pd.classifier, pd.test_set)
+    pd.pokemon_id = img
 
 # Returns a random label
 def rand():
@@ -69,37 +74,37 @@ def rand():
     return image
 
 # Labels the type buttons
-def labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, name_txt):
+def labels():
     typing = types('data/Pokemon-2.csv')
     path = "data/type_labels/"
-    type = get_pokemon(pokemon_id).type1
-    AI_answer = (type == prediction)
+    type = get_pokemon(pd.pokemon_id).type1
+    pd.AI_answer = (type == pd.prediction)
 
-    type_labels[0] = (path + type + '.png', True)
+    pd.type_labels[0] = (path + type + '.png', True)
 
     for i in range(1,4):
         name = path + random.choice(os.listdir(path))
-        temp = [a for b in type_labels for a in b]
+        temp = [a for b in pd.type_labels for a in b]
         while str(name).endswith('.DS_Store') or name in temp:
             name = path + random.choice(os.listdir(path))
-        type_labels[i] = (name, False)
+        pd.type_labels[i] = (name, False)
 
     for i in range(4):
-        pilImage = Image.open(type_labels[i][0])
+        pilImage = Image.open(pd.type_labels[i][0])
         image = ImageTk.PhotoImage(pilImage)
-        type_labels[i] = (image,type_labels[i][1])
+        pd.type_labels[i] = (image,pd.type_labels[i][1])
 
-    random.shuffle(type_labels)
+    random.shuffle(pd.type_labels)
 
 
-    btn1 = Button(window, image=type_labels[0][0], command=lambda:
-                  clicked(window,type_labels,type_labels[0][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn2 = Button(window, image=type_labels[1][0], command=lambda:
-                  clicked(window,type_labels,type_labels[1][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn3 = Button(window, image=type_labels[2][0], command=lambda:
-                  clicked(window,type_labels,type_labels[2][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
-    btn4 = Button(window, image=type_labels[3][0], command=lambda:
-                  clicked(window,type_labels,type_labels[3][1],player_counter,AI_counter,AI_answer,classifier, test_set, name_txt))
+    btn1 = Button(pd.window, image=pd.type_labels[0][0], command=lambda:
+                  clicked(pd.type_labels[0][1]))
+    btn2 = Button(pd.window, image=pd.type_labels[1][0], command=lambda:
+                  clicked(pd.type_labels[1][1]))
+    btn3 = Button(pd.window, image=pd.type_labels[2][0], command=lambda:
+                  clicked(pd.type_labels[2][1]))
+    btn4 = Button(pd.window, image=pd.type_labels[3][0], command=lambda:
+                  clicked(pd.type_labels[3][1]))
 
     btn1.place(x=100, y=200, anchor="center")
     btn2.place(x=100, y=250, anchor="center")
@@ -108,30 +113,33 @@ def labels(window, type_labels, pokemon_id, player_counter, AI_counter, predicti
 
 def gui():
     window = Tk()
-    window.title("Pokemon Classification Game")
-    window.geometry('300x300')
+    pd.window = window
+    pd.window.title("Pokemon Classification Game")
+    pd.window.geometry('300x300')
 
     f = Frame(window,bg="white",width=400,height=400)
     f.grid(row=0,column=0,sticky="NW")
     f.grid_propagate(0)
     f.update()
 
-    type_labels = [(None, None), (None, None), (None, None), (None, None)]
+    pd.type_labels = [(None, None), (None, None), (None, None), (None, None)]
 
-    player_counter = Label(window, text = "Player score: 0")
-    player_counter.place(x = 65, y = 10, anchor = "center")
+    pd.player_counter = Label(window, text = "Player score: 0")
+    pd.player_counter.place(x = 65, y = 10, anchor = "center")
 
-    AI_counter = Label(window, text = "AI score: 0")
-    AI_counter.place(x = 250, y = 10, anchor = "center")
+    pd.AI_counter = Label(window, text = "AI score: 0")
+    pd.AI_counter.place(x = 250, y = 10, anchor = "center")
 
-    classifier, test_set = run(evaluate = False, predict = False)
+    pd.classifier, pd.test_set = run(evaluate = False, predict = False)
 
     v = StringVar()
     name_label = Label(window, textvariable = v)
     name_label.place(x = 150, y = 30, anchor = "center")
 
-    pokemon_id, prediction = next_pokemon(window, classifier, test_set, v)
-    labels(window, type_labels, pokemon_id, player_counter, AI_counter, prediction, classifier, test_set, v)
+    pd.name_txt = v
+
+    next_pokemon()
+    labels()
 
     return window
 
