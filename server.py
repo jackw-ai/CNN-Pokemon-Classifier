@@ -16,22 +16,31 @@ class ServerDB:
     #db.item
     def __init__(self):
         self.scores = {}
-        self.started = True
+        self.started = False
+        self.sleep_time = 5
 
     def start_game(self):
         print("starting game")
         self.update_item()
+        self.started = True
 
     def update_item(self):
         self.item = random_sprite()
-        #multi.push_event('set_pokemon', db["item"])
-        #multi.push_event('labels')
-        #GUI.set_pokemon(db["item"][0], db["item"][1])
-        #GUI.labels()
 
     async def send_item(self):
         print("sending item ", self.item)
         await sio.emit('request_item', self.item)
+
+    async def countdown_loop(self):
+        print('starting countdown loop')
+        while True:
+            await self.countdown()
+
+    async def countdown(self):
+        print('starting countdown')
+        await asyncio.sleep(self.sleep_time)
+        self.update_item()
+        await self.send_item()
 
 db = ServerDB()
 
@@ -45,10 +54,10 @@ async def index(request):
         return web.Response(text=f.read(), content_type='text/html')
 
 @sio.on('connect', namespace='/chat')
-def connect(sid, environ):
+async def connect(sid, environ):
     print("connect ", sid)
     if db.started:
-        db.send_item()
+        await db.send_item()
 
 
 @sio.on('chat message', namespace='/chat')
@@ -59,20 +68,27 @@ async def message(sid, data):
 @sio.on('game_start', namespace='/chat')
 async def game_start(sid, data):
     db.start_game()
-    db.send_item()
+    await db.send_item()
 
 @sio.on('request_item', namespace='/chat')
 async def request_item(sid, data):
     db_item = db.item
-    if data is not None and data[0] == db_item[0] and data[1] == db_item[1]:
-        db.update_item()
-        db_item = db.item
+    #if data is not None and data[0] == db_item[0] and data[1] == db_item[1]:
+    #    db.update_item()
+    #    db_item = db.item
     await db.send_item()
 
-#@sio.on('request_item', namespace='/chat')
+@sio.on('submit_answer', namespace='/chat')
 #data[0]: (boolean) correct
 #data[1]: (long) millis
-#async def submit_answer(sid, data):
+async def submit_answer(sid, data):
+    try:
+        print('submit ', data)
+        correct = data[0]
+        millis = data[1]
+        db.submit_answer(correct, millis)
+    except ValueError:
+        print('invalid submission')
 
 @sio.on('disconnect', namespace='/chat')
 def disconnect(sid):
@@ -81,17 +97,18 @@ def disconnect(sid):
 #app.router.add_static('/static', 'static')
 app.router.add_get('/', index)
 
-class MultiServer(threading.Thread):
+class MultiWebApp(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
     def run(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
+        asyncio.ensure_future(db.countdown_loop())
         web.run_app(app)
 
 if __name__ == '__main__':
-    t = MultiServer()
+    t = MultiWebApp()
     t.daemon = True
     t.start()
     client.start_client('127.0.0.1', 8080, True)

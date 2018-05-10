@@ -41,7 +41,7 @@ class MultiClient(threading.Thread):
         self.local_server = local_server
 
     def run(self):
-        print("abc")
+        print("client started")
 
         socketIO = SocketIO('http://' + str(self.host), self.port)
         chat_namespace = socketIO.define(Namespace, '/chat')
