@@ -18,7 +18,7 @@ matplotlib.use("TkAgg")
 from preprocess import types, get_pokemon
 from run import load_models, load_image, run, predict_single
 
-from events import current_time
+import events
 
 class GUIData:
     #Attrs:
@@ -56,7 +56,7 @@ def clicked(correct_type):
         next_pokemon()
         labels()
     if pd.multi:
-        pd.net.queue.put((pd.net.round_num, correct_type, current_time() - pd.net.start_time))
+        pd.net.queue.put((pd.net.round_num, correct_type, events.current_time() - pd.net.start_time))
 
 
 def random_sprite():
