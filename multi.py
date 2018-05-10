@@ -15,11 +15,7 @@ def process_event():
     while not GUI.pd.net.event_queue.empty():
         event = GUI.pd.net.event_queue.get()
         method = getattr(events, event.name)
-        try:
-            method(*event.args)
-        except TypeError:
-            args = [event.args]
-            method(*args)
+        method(*event.args)
 
 class GUIEvent:
     def __init__(self, name, args):

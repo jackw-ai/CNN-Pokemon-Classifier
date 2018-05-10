@@ -18,6 +18,8 @@ matplotlib.use("TkAgg")
 from preprocess import types, get_pokemon
 from run import load_models, load_image, run, predict_single
 
+from events import current_time
+
 class GUIData:
     #Attrs:
     #pd.AI_answer
@@ -44,17 +46,17 @@ pd.net = NetData()
 
 # determines the outcome of a click
 def clicked(correct_type):
-    if correct_type:
-        score = int(pd.player_counter.cget("text").split(": ")[1])
-        pd.player_counter.configure(text="Player score: " + str(score+1))
-    if pd.AI_answer:
-        score = int(pd.AI_counter.cget("text").split(": ")[1])
-        pd.AI_counter.configure(text="AI score: " + str(score+1))
     if not pd.multi:
+        if correct_type:
+            score = int(pd.player_counter.cget("text").split(": ")[1])
+            pd.player_counter.configure(text="Player score: " + str(score+1))
+        if pd.AI_answer:
+            score = int(pd.AI_counter.cget("text").split(": ")[1])
+            pd.AI_counter.configure(text="AI score: " + str(score+1))
         next_pokemon()
         labels()
     if pd.multi:
-        pd.net.queue.put("click")
+        pd.net.queue.put((pd.net.round_num, correct_type, current_time() - pd.net.start_time))
 
 
 def random_sprite():
@@ -82,7 +84,8 @@ def set_pokemon(file_name, img):
     p.place(x=150, y=130, anchor="center")
     pd.name_txt.set(get_pokemon(img).name)
 
-    pd.prediction = predict_single(file_name, pd.classifier, pd.test_set)
+    if not pd.multi:
+        pd.prediction = predict_single(file_name, pd.classifier, pd.test_set)
     pd.pokemon_id = img
 
 # Returns a random label
@@ -100,7 +103,8 @@ def labels():
     typing = types('data/Pokemon-2.csv')
     path = "data/type_labels/"
     type = get_pokemon(pd.pokemon_id).type1
-    pd.AI_answer = (type == pd.prediction)
+    if not pd.multi:
+        pd.AI_answer = (type == pd.prediction)
 
     pd.type_labels[0] = (path + type + '.png', True)
 
@@ -153,10 +157,15 @@ def gui():
     pd.player_counter = Label(window, text = "Player score: 0")
     pd.player_counter.place(x = 65, y = 10, anchor = "center")
 
-    pd.AI_counter = Label(window, text = "AI score: 0")
-    pd.AI_counter.place(x = 250, y = 10, anchor = "center")
+    if pd.multi:
+        pd.AI_counter = Label(window, text = "Opponent score: 0")
+        pd.AI_counter.place(x = 250, y = 10, anchor = "center")
+        pd.classifier, pd.test_set = run(evaluate = False, predict = False)
+    else:
+        pd.AI_counter = Label(window, text = "AI score: 0")
+        pd.AI_counter.place(x = 250, y = 10, anchor = "center")
+        pd.classifier, pd.test_set = run(evaluate = False, predict = False)
 
-    pd.classifier, pd.test_set = run(evaluate = False, predict = False)
 
     v = StringVar()
     name_label = Label(window, textvariable = v)
@@ -169,6 +178,9 @@ def gui():
         time_label = Label(window, textvariable = v2)
         time_label.place(x = 150, y = 60, anchor = "center")
         pd.net.time_txt = v2
+
+        v.set('Please hold on,')
+        v2.set('Waiting for next round to begin...')
 
     if not pd.multi:
         next_pokemon()

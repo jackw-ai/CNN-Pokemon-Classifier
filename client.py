@@ -24,13 +24,19 @@ class Namespace(BaseNamespace):
 
     def on_request_response(self, *args):
         print('on_request_response', args)
-        last_item = (args[0], args[1])
+        self.pd.net.round_num = args[0]
+        last_item = (args[1], args[2])
         self.pd.net.last_item = last_item
-        multi.push_event('set_timer', args[2])
+        multi.push_event('set_timer', [args[3]])
         multi.push_event('set_pokemon', last_item)
         multi.push_event('labels')
         #GUI.set_pokemon(args[0], args[1])
         #GUI.labels()
+
+    def on_update_score(self, *args):
+        print('on_update_score', args)
+        scores = args[0]
+        multi.push_event('set_scores', [scores])
 
 
 class MultiClient(threading.Thread):
@@ -50,11 +56,12 @@ class MultiClient(threading.Thread):
         chat_namespace.bind(self.pd)
         socketIO.on('reply', chat_namespace.on_reply)
         socketIO.on('request_item', chat_namespace.on_request_response)
+        socketIO.on('update_score', chat_namespace.on_update_score)
         if self.local_server:
             chat_namespace.emit('game_start', None)
-            socketIO.wait(seconds=1)
-        chat_namespace.emit('request_item', None)
-        socketIO.wait(seconds=1)
+            #socketIO.wait(seconds=1)
+        #chat_namespace.emit('request_item', None)
+        #socketIO.wait(seconds=1)
 
         while True:
             #s = input('Send message: ')
@@ -63,7 +70,8 @@ class MultiClient(threading.Thread):
             while self.pd.net.queue.empty():
                 socketIO.wait(seconds=0.1)
             event = self.pd.net.queue.get()
-            chat_namespace.emit('request_item', self.pd.net.last_item)
+            #chat_namespace.emit('request_item', self.pd.net.last_item)
+            chat_namespace.emit('submit_answer', event)
 
 def start_client(host, port, local_server):
     GUI.pd.multi = True
