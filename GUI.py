@@ -163,6 +163,13 @@ def gui():
     name_label.place(x = 150, y = 30, anchor = "center")
 
     pd.name_txt = v
+
+    if pd.multi:
+        v2 = StringVar()
+        time_label = Label(window, textvariable = v2)
+        time_label.place(x = 150, y = 60, anchor = "center")
+        pd.net.time_txt = v2
+
     if not pd.multi:
         next_pokemon()
         labels()
@@ -170,4 +177,4 @@ def gui():
 if __name__ == "__main__":
     pd.multi = False
     gui()
-    window.mainloop()
+    pd.window.mainloop()

@@ -25,7 +25,8 @@ class ServerDB:
         self.started = True
 
     def update_item(self):
-        self.item = random_sprite()
+        (a, b) = random_sprite()
+        self.item = (a, b, self.sleep_time * 1000)
 
     async def send_item(self):
         print("sending item ", self.item)
@@ -68,15 +69,16 @@ async def message(sid, data):
 @sio.on('game_start', namespace='/chat')
 async def game_start(sid, data):
     db.start_game()
-    await db.send_item()
+    #await db.send_item()
 
 @sio.on('request_item', namespace='/chat')
 async def request_item(sid, data):
-    db_item = db.item
+    pass
+    #db_item = db.item
     #if data is not None and data[0] == db_item[0] and data[1] == db_item[1]:
     #    db.update_item()
     #    db_item = db.item
-    await db.send_item()
+    #await db.send_item()
 
 @sio.on('submit_answer', namespace='/chat')
 #data[0]: (boolean) correct

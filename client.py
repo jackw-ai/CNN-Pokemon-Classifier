@@ -24,8 +24,10 @@ class Namespace(BaseNamespace):
 
     def on_request_response(self, *args):
         print('on_request_response', args)
-        self.pd.net.last_item = args
-        multi.push_event('set_pokemon', args)
+        last_item = (args[0], args[1])
+        self.pd.net.last_item = last_item
+        multi.push_event('set_timer', args[2])
+        multi.push_event('set_pokemon', last_item)
         multi.push_event('labels')
         #GUI.set_pokemon(args[0], args[1])
         #GUI.labels()
