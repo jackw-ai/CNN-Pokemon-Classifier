@@ -6,22 +6,38 @@ from aiohttp import web
 import asyncio
 import socketio
 import random
-import GUI
 import multi
 import threading
+import client
+from GUI import random_sprite
 
-db = {}
+class ServerDB:
+    #db.scores
+    #db.item
+    def __init__(self):
+        self.scores = {}
+        self.started = True
+
+    def start_game(self):
+        print("starting game")
+        self.update_item()
+
+    def update_item(self):
+        self.item = random_sprite()
+        #multi.push_event('set_pokemon', db["item"])
+        #multi.push_event('labels')
+        #GUI.set_pokemon(db["item"][0], db["item"][1])
+        #GUI.labels()
+
+    async def send_item(self):
+        print("sending item ", self.item)
+        await sio.emit('request_item', self.item)
+
+db = ServerDB()
 
 sio = socketio.AsyncServer()
 app = web.Application()
 sio.attach(app)
-
-def update_item():
-    db["item"] = GUI.random_sprite()
-    multi.push_event('set_pokemon', db["item"])
-    multi.push_event('labels')
-    #GUI.set_pokemon(db["item"][0], db["item"][1])
-    #GUI.labels()
 
 async def index(request):
     """Serve the client-side application."""
@@ -31,22 +47,32 @@ async def index(request):
 @sio.on('connect', namespace='/chat')
 def connect(sid, environ):
     print("connect ", sid)
+    if db.started:
+        db.send_item()
+
 
 @sio.on('chat message', namespace='/chat')
 async def message(sid, data):
     print("message ", data)
     await sio.emit('reply', sid, room=sid)
 
+@sio.on('game_start', namespace='/chat')
+async def game_start(sid, data):
+    db.start_game()
+    db.send_item()
+
 @sio.on('request_item', namespace='/chat')
 async def request_item(sid, data):
-    if "item" not in db:
-        update_item()
-    db_item = db["item"]
+    db_item = db.item
     if data is not None and data[0] == db_item[0] and data[1] == db_item[1]:
-        update_item()
-    db_item = db["item"]
-    print("sending item ", db_item)
-    await sio.emit('request_item', db_item, room=sid)
+        db.update_item()
+        db_item = db.item
+    await db.send_item()
+
+#@sio.on('request_item', namespace='/chat')
+#data[0]: (boolean) correct
+#data[1]: (long) millis
+#async def submit_answer(sid, data):
 
 @sio.on('disconnect', namespace='/chat')
 def disconnect(sid):
@@ -56,9 +82,8 @@ def disconnect(sid):
 app.router.add_get('/', index)
 
 class MultiServer(threading.Thread):
-    def __init__(self, pd):
+    def __init__(self):
         threading.Thread.__init__(self)
-        self.pd = pd
 
     def run(self):
         loop = asyncio.new_event_loop()
@@ -66,10 +91,7 @@ class MultiServer(threading.Thread):
         web.run_app(app)
 
 if __name__ == '__main__':
-    GUI.pd.multi = True
-    GUI.gui()
-    multi.start_event_queue()
-    t = MultiServer(GUI.pd)
+    t = MultiServer()
     t.daemon = True
     t.start()
-    GUI.pd.window.mainloop()
+    client.start_client('127.0.0.1', 8080, True)
