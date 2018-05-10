@@ -20,7 +20,7 @@ class ServerDB:
         self.game_round = {}
         self.scores = {}
         self.started = False
-        self.sleep_time = 10
+        self.sleep_time = 5
 
     def start_game(self):
         print("starting game")
