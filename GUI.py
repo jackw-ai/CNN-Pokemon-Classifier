@@ -97,7 +97,6 @@ def rand():
 
 # Labels the type buttons
 def labels():
-    print("labels")
     typing = types('data/Pokemon-2.csv')
     path = "data/type_labels/"
     type = get_pokemon(pd.pokemon_id).type1
@@ -164,33 +163,9 @@ def gui():
     name_label.place(x = 150, y = 30, anchor = "center")
 
     pd.name_txt = v
-    if pd.multi:
-        start_event_queue()
-    else:
+    if not pd.multi:
         next_pokemon()
         labels()
-
-def start_event_queue():
-    pd.net.event_queue = Queue()
-    event_queue()
-
-def event_queue():
-    process_event()
-    pd.window.after(200, event_queue)
-
-def process_event():
-    while not pd.net.event_queue.empty():
-        event = pd.net.event_queue.get()
-        method = globals()[event.name]
-        method(*event.args)
-
-class GUIEvent:
-    def __init__(self, name, args):
-        self.name = name
-        self.args = args
-
-def push_event(name, args=[]):
-    pd.net.event_queue.put(GUIEvent(name, args))
 
 if __name__ == "__main__":
     pd.multi = False

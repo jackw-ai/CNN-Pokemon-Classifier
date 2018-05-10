@@ -7,6 +7,7 @@ import asyncio
 import socketio
 import random
 import GUI
+import multi
 import threading
 
 db = {}
@@ -17,8 +18,8 @@ sio.attach(app)
 
 def update_item():
     db["item"] = GUI.random_sprite()
-    GUI.push_event('set_pokemon', db["item"])
-    GUI.push_event('labels')
+    multi.push_event('set_pokemon', db["item"])
+    multi.push_event('labels')
     #GUI.set_pokemon(db["item"][0], db["item"][1])
     #GUI.labels()
 
@@ -67,6 +68,7 @@ class MultiServer(threading.Thread):
 if __name__ == '__main__':
     GUI.pd.multi = True
     GUI.gui()
+    multi.start_event_queue()
     t = MultiServer(GUI.pd)
     t.daemon = True
     t.start()

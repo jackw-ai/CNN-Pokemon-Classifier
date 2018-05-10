@@ -1,5 +1,6 @@
 from socketIO_client import SocketIO, BaseNamespace
 import GUI
+import multi
 import threading
 import sys
 
@@ -24,8 +25,8 @@ class Namespace(BaseNamespace):
     def on_request_response(self, *args):
         print('on_request_response', args)
         self.pd.net.last_item = args
-        GUI.push_event('set_pokemon', args)
-        GUI.push_event('labels')
+        multi.push_event('set_pokemon', args)
+        multi.push_event('labels')
         #GUI.set_pokemon(args[0], args[1])
         #GUI.labels()
 
@@ -60,6 +61,7 @@ class MultiClient(threading.Thread):
 if __name__ == '__main__':
     GUI.pd.multi = True
     GUI.gui()
+    multi.start_event_queue()
     host = '127.0.0.1'
     port = 8080
     if len(sys.argv) >= 2:
