@@ -17,8 +17,10 @@ sio.attach(app)
 
 def update_item():
     db["item"] = GUI.random_sprite()
-    GUI.set_pokemon(db["item"][0], db["item"][1])
-    GUI.labels()
+    GUI.push_event('set_pokemon', db["item"])
+    GUI.push_event('labels')
+    #GUI.set_pokemon(db["item"][0], db["item"][1])
+    #GUI.labels()
 
 async def index(request):
     """Serve the client-side application."""
@@ -63,6 +65,7 @@ class MultiServer(threading.Thread):
         web.run_app(app)
 
 if __name__ == '__main__':
+    GUI.pd.multi = True
     GUI.gui()
     t = MultiServer(GUI.pd)
     t.daemon = True

@@ -30,9 +30,17 @@ class GUIData:
     #pd.test_set
     #pd.type_labels
     #pd.window
+    #pd.multi
+    #pd.net
+    pass
+
+class NetData:
+    #pd.net.queue
+    #pd.net.last_item
     pass
 
 pd = GUIData()
+pd.net = NetData()
 
 # determines the outcome of a click
 def clicked(correct_type):
@@ -42,10 +50,11 @@ def clicked(correct_type):
     if pd.AI_answer:
         score = int(pd.AI_counter.cget("text").split(": ")[1])
         pd.AI_counter.configure(text="AI score: " + str(score+1))
-
-    next_pokemon()
-    labels()
-    pd.queue.put("click")
+    if not pd.multi:
+        next_pokemon()
+        labels()
+    if pd.multi:
+        pd.net.queue.put("click")
 
 
 def random_sprite():
@@ -88,6 +97,7 @@ def rand():
 
 # Labels the type buttons
 def labels():
+    print("labels")
     typing = types('data/Pokemon-2.csv')
     path = "data/type_labels/"
     type = get_pokemon(pd.pokemon_id).type1
@@ -126,7 +136,8 @@ def labels():
 
 
 def gui():
-    pd.queue = Queue()
+    if pd.multi:
+        pd.net.queue = Queue()
 
     window = Tk()
     pd.window = window
@@ -153,10 +164,35 @@ def gui():
     name_label.place(x = 150, y = 30, anchor = "center")
 
     pd.name_txt = v
+    if pd.multi:
+        start_event_queue()
+    else:
+        next_pokemon()
+        labels()
 
-    next_pokemon()
-    labels()
+def start_event_queue():
+    pd.net.event_queue = Queue()
+    event_queue()
+
+def event_queue():
+    process_event()
+    pd.window.after(200, event_queue)
+
+def process_event():
+    while not pd.net.event_queue.empty():
+        event = pd.net.event_queue.get()
+        method = globals()[event.name]
+        method(*event.args)
+
+class GUIEvent:
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+def push_event(name, args=[]):
+    pd.net.event_queue.put(GUIEvent(name, args))
 
 if __name__ == "__main__":
+    pd.multi = False
     gui()
     window.mainloop()

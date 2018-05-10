@@ -1,6 +1,7 @@
 from socketIO_client import SocketIO, BaseNamespace
 import GUI
 import threading
+import sys
 
 class Namespace(BaseNamespace):
 
@@ -22,21 +23,25 @@ class Namespace(BaseNamespace):
 
     def on_request_response(self, *args):
         print('on_request_response', args)
-        self.pd.net_last_server = args
-        GUI.set_pokemon(args[0], args[1])
-        GUI.labels()
+        self.pd.net.last_item = args
+        GUI.push_event('set_pokemon', args)
+        GUI.push_event('labels')
+        #GUI.set_pokemon(args[0], args[1])
+        #GUI.labels()
 
 
 class MultiClient(threading.Thread):
-    def __init__(self, pd):
+    def __init__(self, pd, host, port):
         threading.Thread.__init__(self)
         self.pd = pd
         self.pd.hook = self
+        self.host = host
+        self.port = port
 
     def run(self):
         print("abc")
 
-        socketIO = SocketIO('http://127.0.0.1', 8080)
+        socketIO = SocketIO('http://' + str(self.host), self.port)
         chat_namespace = socketIO.define(Namespace, '/chat')
         chat_namespace.bind(self.pd)
         socketIO.on('reply', chat_namespace.on_reply)
@@ -48,13 +53,20 @@ class MultiClient(threading.Thread):
             #s = input('Send message: ')
             #chat_namespace.emit("chat message", s)
             #socketIO.wait(seconds=0.1)
-            event = self.pd.queue.get()
-            chat_namespace.emit('request_item', self.pd.net_last_server)
+            event = self.pd.net.queue.get()
+            chat_namespace.emit('request_item', self.pd.net.last_item)
             socketIO.wait(seconds=1)
 
 if __name__ == '__main__':
+    GUI.pd.multi = True
     GUI.gui()
-    t = MultiClient(GUI.pd)
+    host = '127.0.0.1'
+    port = 8080
+    if len(sys.argv) >= 2:
+        host = sys.argv[1]
+    if len(sys.argv) >= 3:
+        port = int(sys.argv[2])
+    t = MultiClient(GUI.pd, host, port)
     t.daemon = True
     t.start()
     GUI.pd.window.mainloop()
