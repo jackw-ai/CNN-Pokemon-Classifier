@@ -4,14 +4,18 @@
 # Importing the Keras libraries and packages
 from keras.models import Sequential
 from keras.layers import Conv2D
-from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.preprocessing import image
 from keras.preprocessing.image import ImageDataGenerator
 from keras.utils import plot_model
-from keras import *
+from keras import optimizers
+from keras import applications
+from keras.layers.normalization import BatchNormalization
+from keras.layers import Activation, Dense
+from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
+
 
 
 import numpy as np
@@ -65,13 +69,73 @@ def create_cnn(primary = True):
     categories = 18 if primary else 19
 
     classifier.add(Dense(categories, activation = 'softmax'))
+    classifier.summary()
 
     # returns built CNN
     return classifier
 
+def create_cnn2(primary = True):
+    ''' 
+    creates the convolutional neural network classifier 
+    returns the classfier for primary or secondary types
+    '''
+
+    # sequential layers
+    model = Sequential()
+
+    model.add(Conv2D(64, (3, 3),
+                          padding = 'same',
+                          input_shape = (SHAPE, SHAPE, 3),
+                          activation = 'relu'))
+
+    # add convolutional layers
+    ''' 
+    3 Convolutional Layers, maxpool layer follows 2 Conv2D layers
+    3 Dropout layers to prevent overfitting
+    after flatten, 2 dense layers to return output
+    '''
+   
+
+    # we can think of this chunk as the input layer
+    model.add(Dropout(0.5))
+
+    # we can think of this chunk as the hidden layer    
+    model.add(Dense(64, init='uniform'))
+    model.add(BatchNormalization())
+    model.add(Activation('tanh'))
+    model.add(Dropout(0.5))
+
+    # we can think of this chunk as the output layer
+    categories = 18 if primary else 19
+
+    model.add(Flatten())
+    model.add(Dense(categories))
+    model.add(BatchNormalization())
+    model.add(Activation('softmax'))
+
+    # returns built CNN
+    return model
 
 def fine_tune(primary = True):
     categories = 18 if primary else 19
+
+    '''
+    resnetmd = applications.resnet50.ResNet50(# include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights='imagenet'
+                                       )
+    ftmodel = Sequential()
+    
+    for layer in resnetmd.layers:
+        ftmodel.add(layer)
+    ftmodel.layers.pop()
+    
+    for layer in ftmodel.layers:
+        layer.trainable = False
+        
+    ftmodel.add(Flatten())
+
+    ftmodel.add(Dense(categories, activation = 'softmax'))
+    ftmodel.summary()
+    '''
     
     
     vgg16md = applications.vgg16.VGG16(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights='imagenet'
@@ -81,7 +145,30 @@ def fine_tune(primary = True):
     # vgg16md.summary()
     ftmodel = Sequential()
     
-    for layer in vgg16md.layers[:-12]:
+    for layer in vgg16md.layers[:-8]:
+        ftmodel.add(layer)
+    # ftmodel.layers.pop()
+    
+    # for layer in ftmodel.layers[:-2]:
+        # layer.trainable = False
+    
+    # ftmodel.summary()
+
+    ftmodel.add(Flatten())
+    ftmodel.add(Dropout(0.5))
+    ftmodel.add(Dense(categories, activation = 'softmax'))
+
+    ftmodel.summary()
+    
+
+    '''
+    mbNet = applications.mobilenet.MobileNet(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),
+                                       )
+    
+    
+    ftmodel = Sequential()
+    
+    for layer in mbNet.layers:
         ftmodel.add(layer)
     # ftmodel.layers.pop()
     for layer in ftmodel.layers:
@@ -89,60 +176,37 @@ def fine_tune(primary = True):
 
     # ftmodel.summary()
 
-    ftmodel.add(layers.Flatten())
-
-    ftmodel.add(layers.Dense(categories, activation = 'softmax'))
-
-    ftmodel.summary()
-    
-
-    '''    
-    mbNet = applications.mobilenet.MobileNet(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),
-                                       )
-    
-    # vgg16md.summary()
-    ftmodel = Sequential()
-    
-    for layer in mbNet.layers:
-        ftmodel.add(layer)
-    ftmodel.layers.pop()
-    for layer in ftmodel.layers:
-        layer.trainable = False
-
-    # ftmodel.summary()
-
-    # ftmodel.add(Dense(categories, input_dim = 4, activation = 'softmax'))
-
-    ftmodel.add(Dense(256, input_dim = 4, activation = 'relu'))
-    ftmodel.add(Dropout(0.5))
+    ftmodel.add(Flatten())
     ftmodel.add(Dense(categories, activation = 'softmax'))
 
-    # ftmodel.summary()
+    ftmodel.summary()
     '''
     
     
     '''
-    xceptionmd = applications.xception.Xception(# include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),
+    xceptionmd = applications.xception.Xception(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights='imagenet'
                                                 )
 
     # xceptionmd.summary()
+    
                                                
     ftmodel = Sequential()
     
     for layer in xceptionmd.layers:
         ftmodel.add(layer)
-    ftmodel.layers.pop()
+    
+    # ftmodel.layers.pop()
     for layer in ftmodel.layers:
         layer.trainable = False
 
     ftmodel.summary()
     
-    ftmodel.add(Dense(categories, activation = 'softmax'))
+    ftmodel.add(Flatten())
+    ftmodel.add(layers.Dense(categories, activation = 'softmax'))
 
-    # ftmodel.summary()
+    ftmodel.summary()
     '''
-    
-    
+
     return ftmodel
 
 def train_fine_tune(primary = True, save = True, plot_classifier = False):
@@ -156,7 +220,7 @@ def train_fine_tune(primary = True, save = True, plot_classifier = False):
     EPOCHS = 20
     
     # uses adam optimizer and crossentropy loss function
-    ftmodel.compile(optimizer = 'adam',
+    ftmodel.compile(optimizers.Adam(lr = 0.1),
                        loss = 'categorical_crossentropy',
                        metrics = ['accuracy'])
 
@@ -202,7 +266,7 @@ def train_fine_tune(primary = True, save = True, plot_classifier = False):
                                        validation_data = test_set,
                                        verbose = 2)
 
-    print("HaHa")
+    
     # plots the model
     if plot_classifier:
         filepath = 'model/ftmodel1.png' if primary else 'model/ftmodel2.png'
@@ -228,7 +292,7 @@ def train(primary = True, save = True, plot_classifier = False):
     '''
 
     # get model
-    classifier = create_cnn(primary)
+    classifier = create_cnn2(primary)
 
     # batch size
     BATCH_SIZE = 64
@@ -301,8 +365,8 @@ if __name__ == "__main__":
     # fine_tune()
     
     # build classifier for type 1 and 2
-    _, h = train_fine_tune(primary = True, save = s, plot_classifier = plt)    
-    _, h2 = train_fine_tune(primary = False, save = s, plot_classifier = plt)
+    # _, h = train(primary = True, save = s, plot_classifier = plt)    
+    _, h2 = train(primary = False, save = s, plot_classifier = plt)
 
     if plt: # plots accuracy and loss curves
         plot_loss(h)
