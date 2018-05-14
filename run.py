@@ -1,4 +1,4 @@
-# (c) 2018 Tingda Wang, Tongyu Zhou
+# (c) 2018 Tingda Wang, Tongyu Zhou, Xuanzhen Zhang
 # loads model from training and performs predictions and evaluations
 
 # Importing the Keras libraries and packages                                       
@@ -32,6 +32,13 @@ def load_models():
     print("Loaded classifiers from disk")
     return classifier, classifier2
 
+def load_fine_tune_models():
+    ''' loads the fine tune models '''
+    classifier = load_model("model/ftmodel1.h5")
+    classifier2 = load_model("model/ftmodel2.h5")
+    print("Loaded fine tune models from disk")
+    return classifier, classifier2
+
 def load_image(imagepath):
     ''' helper to load image '''
     test_image = image.load_img(imagepath, target_size = (32, 32))
@@ -60,7 +67,7 @@ def stats(type_dict, classifier, primary = True):
             pred_types.append(pred[0])
     return np.array(true_types), np.array(pred_types)
 
-def run(evaluate = True, predict = True):
+def run(evaluate = True, predict = True, fine_tune = False):
     '''
     function to perform prediction using models
     evaluate determines whether to evaluate model through 
@@ -69,6 +76,8 @@ def run(evaluate = True, predict = True):
     '''
     
     classifier, classifier2 = load_models()
+    if fine_tune:
+        classifier, classifier2 = load_fine_tune_models()
 
     # tests
     test = 'type1_sorted/test'
