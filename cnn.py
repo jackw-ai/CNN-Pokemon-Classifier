@@ -137,8 +137,7 @@ def fine_tune(primary = True):
     ftmodel.summary()
     '''
     
-    
-    vgg16md = applications.vgg16.VGG16(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights='imagenet'
+    vgg16md = applications.vgg16.VGG16(include_top = False, input_shape = (FINE_TUNE_SHAPE,FINE_TUNE_SHAPE,3),weights= None
                                        )
     
     
@@ -365,8 +364,8 @@ if __name__ == "__main__":
     # fine_tune()
     
     # build classifier for type 1 and 2
-    # _, h = train(primary = True, save = s, plot_classifier = plt)    
-    _, h2 = train(primary = False, save = s, plot_classifier = plt)
+    _, h = train_fine_tune(primary = True, save = s, plot_classifier = plt)    
+    # _, h2 = train(primary = False, save = s, plot_classifier = plt)
 
     if plt: # plots accuracy and loss curves
         plot_loss(h)
